@@ -1,0 +1,35 @@
+name: Evaluate new candidate models (no auto-publish)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+permissions:
+  contents: read
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python training dependencies
+        run: python -m pip install -r python/requirements.txt
+      - name: Train on approved, committed datasets only
+        shell: bash
+        run: |
+          set -e
+          mkdir -p candidate-artifacts
+          for lang in fa en; do
+            if [ -f "training/approved/training-$lang.jsonl" ]; then
+              python python/train_cli.py --lang "$lang" --dataset "training/approved/training-$lang.jsonl" --output "candidate-artifacts/$lang.json" --onnx "candidate-artifacts/$lang.onnx"
+            else
+              echo "No approved $lang dataset; skipped."
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate-models-review-required
+          path: candidate-artifacts/
+          if-no-files-found: ignore
+# Intentionally NO model publish and NO commit/push step.

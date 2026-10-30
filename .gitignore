@@ -1,0 +1,10 @@
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+admin_data/
+.DS_Store
+*.log
+# Public dist/models are rebuilt only from models/published
+/dist/models/*.json
+/dist/models/*.onnx

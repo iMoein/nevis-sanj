@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "none",
+    "jsx": "react",
+    "lib": [
+      "DOM",
+      "ES2020"
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "outFile": "dist/app.js",
+    "removeComments": false,
+    "sourceMap": true,
+    "noEmitOnError": true
+  },
+  "files": [
+    "src/types.d.ts",
+    "src/engine/analyze.ts",
+    "src/engine/stylometry.ts",
+    "src/engine/learning.ts",
+    "src/engine/browser-model.ts",
+    "src/app.tsx"
+  ]
+}

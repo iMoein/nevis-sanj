@@ -1,0 +1,35 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>پنل آموزش | نویس‌سنج</title>
+<style>
+:root{font-family:system-ui,Tahoma,sans-serif;color:#24314a;background:#f5f7fb;line-height:1.85}*{box-sizing:border-box}body{margin:0}.container{max-width:980px;margin:0 auto;padding:30px 18px}.head{display:flex;justify-content:space-between;align-items:center}.head h1{font-size:25px;margin:0}.tag{font-size:12px;background:#e2eef7;color:#426393;padding:5px 12px;border-radius:30px}.subtitle{color:#78859d;font-size:13px;margin:0 0 24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid #e1e7f0;border-radius:16px;padding:22px;box-shadow:0 8px 24px #23324e07}.card h2{font-size:18px;margin:0 0 4px}.caption{color:#8290a5;font-size:12px}.pills{display:flex;gap:9px;margin:16px 0}.pill{background:#f1f4fa;border-radius:8px;padding:8px 13px;font-size:12px}.pill b{font-size:16px;display:block}button{font:inherit;cursor:pointer;border:1px solid #ccd7e9;border-radius:9px;background:white;color:#3955a0;padding:10px 14px;margin:4px 0;font-size:13px}button.primary{background:#3859c7;border-color:#3859c7;color:white}button.danger{background:#e9f0ff}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;flex-direction:column}.notice{background:#fff9ee;border:1px solid #f1e5d1;color:#85663c;padding:14px;border-radius:12px;font-size:12px;margin-top:20px}.status{padding:12px 16px;margin:20px 0;border-radius:10px;background:#edf4fe;min-height:48px;font-size:13px;white-space:pre-wrap}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:15px}.metric{background:#f6f8fc;padding:12px;border-radius:9px}.metric strong{display:block;font-size:17px}.metric span{font-size:11px;color:#8994a8}.foot{font-size:12px;color:#8994a8;text-align:center;margin:25px 0}.path{font-family:monospace;font-size:11px;word-break:break-word;color:#7889a9}input[type=file]{display:none}@media(max-width:720px){.grid{grid-template-columns:1fr}.head{align-items:flex-start}.head h1{font-size:20px}}
+</style></head><body><div class="container"><div class="head"><h1>مرکز آموزش نویس‌سنج</h1><div class="tag">خصوصی · فقط روی دستگاه شما</div></div><p class="subtitle">مدیریت مجموعه داده، ساخت مدل آزمایشی و انتشار کنترل‌شده — نسخه ۲.۴.۰</p>
+<p id="status" class="status">در حال بررسی وضعیت...</p><p class="caption">پوشه داده‌های شناسایی‌شده: <span id="path" class="path">—</span></p>
+<div class="grid" id="cards"></div>
+<div class="notice">مدل جدید خودکار روی سایت منتشر نمی‌شود. قبل از انتشار، به‌ویژه «خطای تشخیص متن انسانی» و تعداد نمونه‌های آزمون را بررسی کنید. خروجی اعداد، احتمال قطعی یا تضمین دقت عمومی نیست. داده‌های آموزشی فقط در پوشه محلی admin_data نگهداری می‌شوند و هرگز وارد GitHub Pages نمی‌شوند.</div>
+<p class="foot">برای انتشار تغییرات آنلاین پس از تأیید مدل، فایل publish.command را روی مک اجرا کنید.</p></div>
+<script nonce="nevislocal">
+const TOKEN='%%TOKEN%%';
+const $=id=>document.getElementById(id);let state=null,busy=false;
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function f(v){return v===undefined||v===null?'—':(Math.round(v*1000)/10).toLocaleString('fa-IR')+'٪';}
+function msg(s,error=false){$('status').textContent=s;$('status').style.background=error?'#fceef1':'#edf4fe';}
+async function refresh(){try{const r=await fetch('/api/status');state=await r.json();$('path').textContent=state.auto_source||'پوشه آماده پیدا نشد؛ از انتخاب فایل استفاده کنید.';render();}catch(e){msg('ارتباط با پنل آموزش برقرار نشد.',true)}}
+function render(){const wrap=$('cards');wrap.innerHTML=['fa','en'].map(lang=>{const obj=state.languages[lang],m=obj.candidate,p=obj.published;
+return `<section class="card"><h2>مدل ${lang==='fa'?'فارسی':'انگلیسی'}</h2><div class="caption">${p?'مدل منتشرشده وجود دارد':'مدل عمومی هنوز منتشر نشده'}</div>
+<div class="pills"><div class="pill"><b>${obj.counts.human||0}</b> نمونه انسانی</div><div class="pill"><b>${obj.counts.ai||0}</b> نمونه ماشینی</div><div class="pill"><b>${obj.groups||0}</b> موضوع مستقل</div></div>
+<div class="actions"><button data-act="auto" data-lang="${lang}">۱. واردکردن خودکار از Downloads</button><button data-act="choose" data-lang="${lang}">یا انتخاب فایل آموزشی</button><input id="file-${lang}" type="file" accept=".csv,.jsonl,.json"><button class="primary" data-act="train" data-lang="${lang}" ${obj.total<48?'disabled':''}>۲. آموزش و ارزیابی مدل جدید</button></div>
+${m?`<div class="metrics"><div class="metric"><strong>${f(m.accuracy)}</strong><span>صحت روی آزمون کنارگذاشته‌شده</span></div><div class="metric"><strong>${f(m.false_positive_rate)}</strong><span>اشتباه در تشخیص انسانی</span></div><div class="metric"><strong>${f(m.ai_recall)}</strong><span>پیداکردن متن ماشینی</span></div><div class="metric"><strong>${m.test_count}</strong><span>نمونه آزمون</span></div></div>`:'<p class="caption">برای مشاهده معیارهای ارزیابی، مدل را آموزش بدهید.</p>'}
+<button class="danger" data-act="publish" data-lang="${lang}" ${!m?'disabled':''}>۳. تأیید و آماده‌سازی برای انتشار سایت</button></section>`}).join('');
+wrap.querySelectorAll('[data-act]').forEach(btn=>btn.onclick=()=>execute(btn.dataset.act,btn.dataset.lang));}
+async function execute(action,lang){if(busy)return;
+if(action==='choose'){$('file-'+lang).click();const el=$('file-'+lang);el.onchange=async()=>{const file=el.files?.[0];if(file){if(file.size>20000000){msg('فایل بیش از اندازه بزرگ است.',true);return;}await send('/api/upload',{language:lang,filename:file.name,content:await file.text()});el.value='';}};return;}
+if(action==='publish'&&!confirm('مدل آزمایشی '+lang+' را برای سایت عمومی تأیید می‌کنید؟ این اقدام امتیازها را معتبر یا قطعی نمی‌کند.'))return;
+const target=action==='auto'?'/api/auto-import':action==='train'?'/api/train':'/api/publish';
+await send(target,{language:lang,confirm:action==='publish'});
+}
+async function send(route,payload){busy=true;document.querySelectorAll('button').forEach(x=>x.disabled=true);msg('در حال انجام عملیات...');try{
+const response=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json','X-Nevis-Token':TOKEN},body:JSON.stringify(payload)});
+const body=await response.json();if(!response.ok)throw Error(body.error||'خطای عملیات');
+msg(route.includes('train')?'مدل آزمایشی آموزش دید. معیارهای ارزیابی را قبل از انتشار بررسی کنید.':route.includes('publish')?'مدل برای انتشار آماده شد. برای ارسال به GitHub فایل publish.command را اجرا کنید.':'داده‌های آموزشی با موفقیت وارد شدند.');state=body.status;render();
+}catch(e){msg(e.message,true);render();}finally{busy=false;}}
+refresh();
+</script></body></html>

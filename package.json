@@ -1,0 +1,21 @@
+{
+  "name": "nevis-sanj",
+  "version": "2.4.0",
+  "private": true,
+  "description": "Offline Persian/English browser classifier + Python local training studio + GitHub Pages deployment",
+  "scripts": {
+    "start": "node server.mjs",
+    "serve": "node server.mjs",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -w -p tsconfig.json",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
