@@ -53,3 +53,18 @@
 .training-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:20px 0}.training-grid>div{padding:15px;background:var(--paper-tint);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;gap:7px}.training-grid span{font-size:11px;color:var(--muted)}.training-grid strong{font-size:18px;color:var(--heading)}.training-actions{display:flex;align-items:center;flex-wrap:wrap;gap:11px}.training-actions .primary-button{width:auto;padding:12px 20px}.training-message{margin-top:13px;color:var(--muted-strong);font-size:12px;line-height:2}
 .training-quality{margin:22px 0;padding:19px;background:var(--paper-tint);border:1px solid var(--border);border-radius:12px}.training-quality>div{display:flex;flex-wrap:wrap;gap:13px;margin:12px 0}.training-quality span{background:var(--paper);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:11px}.training-quality p{font-size:11px;line-height:2;color:var(--muted-strong)}.training-guide{border-top:1px solid var(--border);margin-top:20px;padding-top:14px}.training-guide summary{cursor:pointer;font-weight:800;font-size:12px}.training-guide code{direction:ltr;display:inline-block;background:var(--paper-tint);padding:1px 6px;border-radius:5px}
 @media(max-width:600px){.training-grid{grid-template-columns:1fr}.training-panel{padding:15px}.training-controls,.training-actions{align-items:stretch;flex-direction:column}.training-actions .primary-button{width:100%}}
+
+/* The input editor expands with its results card instead of leaving dead space below it. */
+.editor-panel{display:flex;flex-direction:column}
+.editor-panel .textarea-wrap{flex:1 1 auto;display:flex;min-height:340px}
+.editor-panel .textarea-wrap textarea{flex:1 1 auto;height:auto;min-height:340px;max-height:none;resize:vertical}
+/* Product-oriented footer links: light/dark themes and keyboard focus are preserved. */
+.footer-brand a,.footer-links a{color:var(--heading);font-weight:750;text-decoration:none;text-underline-offset:4px}
+.footer-brand a:hover,.footer-links a:hover{color:var(--accent);text-decoration:underline}
+.footer-brand a:focus-visible,.footer-links a:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:3px}
+.footer-links{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 20px}
+.footer-links a{display:inline-flex;align-items:center;gap:7px}
+.footer-links a svg{color:var(--accent)}
+.footer-links>span{color:var(--muted)}
+@media(max-width:860px){.editor-panel .textarea-wrap,.editor-panel .textarea-wrap textarea{min-height:300px}.footer-links{justify-content:flex-start}}
+@media(max-width:560px){.editor-panel .textarea-wrap,.editor-panel .textarea-wrap textarea{min-height:260px}.footer-links{gap:10px}}

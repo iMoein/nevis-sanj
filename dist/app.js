@@ -1557,9 +1557,15 @@ var NevisApp;
                             React.createElement("span", { className: "brand-mark mini" },
                                 React.createElement(Icon, { name: "scan", size: 16 })),
                             React.createElement("strong", null, "\u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C"),
-                            React.createElement("span", null, "\u00B7"),
-                            React.createElement("span", null, "\u0633\u0627\u062E\u062A\u0647\u200C\u0634\u062F\u0647 \u0628\u0627 React + TypeScript")),
-                        React.createElement("span", null, "\u0646\u0633\u062E\u0647 \u06F2.\u06F5.\u06F0 \u2014 \u062A\u062D\u0644\u06CC\u0644 \u062E\u0635\u0648\u0635\u06CC \u062F\u0631 \u0645\u0631\u0648\u0631\u06AF\u0631\u061B \u0622\u0645\u0648\u0632\u0634 \u062F\u0631 \u067E\u0646\u0644 \u062C\u062F\u0627\u06AF\u0627\u0646\u0647."))));
+                            React.createElement("span", { className: "footer-divider" }, "\u00B7"),
+                            React.createElement("span", null,
+                                "\u0645\u062D\u0635\u0648\u0644\u06CC \u0627\u0632 ",
+                                React.createElement("a", { href: "https://imoein.com", target: "_blank", rel: "noopener noreferrer", "aria-label": "\u0648\u0628\u200C\u0633\u0627\u06CC\u062A iMoein" }, "iMoein"))),
+                        React.createElement("div", { className: "footer-links" },
+                            React.createElement("a", { href: "https://ai-detector.imoein.com", target: "_blank", rel: "noopener noreferrer", "aria-label": "\u0627\u0628\u0632\u0627\u0631 \u0628\u0631\u0631\u0633\u06CC \u0631\u062F\u067E\u0627\u06CC \u0647\u0648\u0634 \u0645\u0635\u0646\u0648\u0639\u06CC \u062F\u0631 \u062A\u0635\u0627\u0648\u06CC\u0631" },
+                                "\u0631\u062F\u067E\u0627\u06CC \u0647\u0648\u0634 \u0645\u0635\u0646\u0648\u0639\u06CC \u062F\u0631 \u062A\u0635\u0627\u0648\u06CC\u0631 ",
+                                React.createElement(Icon, { name: "arrow", size: 15 })),
+                            React.createElement("span", null, "\u0646\u0633\u062E\u0647 \u06F2.\u06F5.\u06F6 \u00B7 \u062A\u062D\u0644\u06CC\u0644 \u062E\u0635\u0648\u0635\u06CC \u062F\u0631 \u0645\u0631\u0648\u0631\u06AF\u0631")))));
         }
     }
     NevisApp.App = App;

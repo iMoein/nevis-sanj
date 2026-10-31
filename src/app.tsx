@@ -315,7 +315,7 @@ namespace NevisApp {
           </section>
           <section id="limitations" className="limitations"><span className="limitations-icon"><Icon name="shield" size={23}/></span><div><h3>یک یادآوری مهم درباره تشخیص هوش مصنوعی</h3><p>این ابزار بدون داده آموزشی، <strong>نمی‌تواند منشأ متن را تشخیص دهد</strong>. مدل محلی پس از آموزش هم فقط یک برآورد احتمالی و خطاپذیر ارائه می‌کند. متن انسانی ممکن است منظم و کلیشه‌ای باشد و متن تولیدشده با AI ممکن است نشانه‌های ظاهری نداشته باشد. ویرایش انسانی و ماشینی نیز می‌تواند با هم ترکیب شود. نتایج نباید به‌تنهایی مبنای تصمیم‌های تحصیلی، استخدامی یا انضباطی قرار گیرند.</p></div></section>
         </main>
-        <footer className="footer"><div className="shell footer-inner"><div className="footer-brand"><span className="brand-mark mini"><Icon name="scan" size={16}/></span><strong>نویس‌سنج</strong><span>·</span><span>ساخته‌شده با React + TypeScript</span></div><span>نسخه ۲.۵.۰ — تحلیل خصوصی در مرورگر؛ آموزش در پنل جداگانه.</span></div></footer>
+        <footer className="footer"><div className="shell footer-inner"><div className="footer-brand"><span className="brand-mark mini"><Icon name="scan" size={16}/></span><strong>نویس‌سنج</strong><span className="footer-divider">·</span><span>محصولی از <a href="https://imoein.com" target="_blank" rel="noopener noreferrer" aria-label="وب‌سایت iMoein">iMoein</a></span></div><div className="footer-links"><a href="https://ai-detector.imoein.com" target="_blank" rel="noopener noreferrer" aria-label="ابزار بررسی ردپای هوش مصنوعی در تصاویر">ردپای هوش مصنوعی در تصاویر <Icon name="arrow" size={15}/></a><span>نسخه ۲.۵.۶ · تحلیل خصوصی در مرورگر</span></div></div></footer>
       </div>;
     }
   }
