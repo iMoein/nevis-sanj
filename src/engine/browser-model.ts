@@ -2,7 +2,7 @@
 namespace NevisEngine {
   export interface PublishedModel {
     schema: 2; language: 'fa' | 'en'; dimensions: number; numeric_dimensions: number;
-    weights: number[]; bias: number; metrics: { train_count: number; test_count: number; false_positive_rate: number; ai_recall: number; accuracy: number };
+    weights: number[]; bias: number; metrics: { train_count: number; test_count: number; test_human?: number; test_ai?: number; false_positive_rate: number; ai_recall: number; accuracy: number; balanced_accuracy?: number };
     created_at: string; notice: string;
   }
   export function isPublishedModel(m: any): m is PublishedModel {

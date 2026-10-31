@@ -85,7 +85,7 @@ test('runtime UI tree initializes without relying on React.Fragment or remote se
       Component,
       createElement(type, props, ...children) { return { type, props: { ...props, children } }; }
     },
-    ReactDOM: { render(element) { virtual.app = new element.type({}); virtual.tree = virtual.app.render(); } },
+    ReactDOM: { render(element) { const appElement=element.props.children[0]; virtual.app = new appElement.type({}); virtual.tree = virtual.app.render(); } },
     document: { documentElement: { setAttribute(k,v) { attrs[k] = v; } }, getElementById() { return {}; } },
     localStorage: { getItem() { return null; } },
     console, setTimeout
@@ -93,8 +93,25 @@ test('runtime UI tree initializes without relying on React.Fragment or remote se
   vm.createContext(virtual);
   vm.runInContext(bundle, virtual);
   assert.equal(virtual.tree.type, 'div');
-  assert.equal(virtual.tree.props.className, 'public-shell');
-  assert.equal(virtual.app.state.report, null);
+  assert.equal(virtual.tree.props.className, 'app-root');
+  assert.ok(virtual.app.state.report);
   assert.equal(virtual.app.state.models.fa, null);
   assert.equal(virtual.app.state.models.en, null);
+  // Regression: rendering an actual model score must never create an invalid
+  // React element type (previously caused an entirely blank public page).
+  const report = virtual.app.state.report;
+  const model = {schema:2,language:'fa',dimensions:2048,numeric_dimensions:8,
+    weights:Array(2056).fill(0),bias:0,metrics:{accuracy:.5,test_count:10,false_positive_rate:.3}};
+  virtual.app.setState({models:{fa:model,en:null}});
+  virtual.tree=virtual.app.render();
+  function check(node) {
+    if(node===null || node===undefined || typeof node==='string' || typeof node==='number' || typeof node==='boolean')return;
+    if(Array.isArray(node)){node.forEach(check);return;}
+    if(typeof node==='object' && 'type' in node){
+      assert.ok(typeof node.type==='string'||typeof node.type==='function', 'Invalid React element type');
+      check(node.props?.children);
+    }
+  }
+  check(virtual.tree);
+  assert.equal(virtual.tree.props.className,'app-root');
 });

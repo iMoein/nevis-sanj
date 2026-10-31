@@ -1,35 +1,252 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>پنل آموزش | نویس‌سنج</title>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مرکز آموزش نویس‌سنج</title>
 <style>
-:root{font-family:system-ui,Tahoma,sans-serif;color:#24314a;background:#f5f7fb;line-height:1.85}*{box-sizing:border-box}body{margin:0}.container{max-width:980px;margin:0 auto;padding:30px 18px}.head{display:flex;justify-content:space-between;align-items:center}.head h1{font-size:25px;margin:0}.tag{font-size:12px;background:#e2eef7;color:#426393;padding:5px 12px;border-radius:30px}.subtitle{color:#78859d;font-size:13px;margin:0 0 24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid #e1e7f0;border-radius:16px;padding:22px;box-shadow:0 8px 24px #23324e07}.card h2{font-size:18px;margin:0 0 4px}.caption{color:#8290a5;font-size:12px}.pills{display:flex;gap:9px;margin:16px 0}.pill{background:#f1f4fa;border-radius:8px;padding:8px 13px;font-size:12px}.pill b{font-size:16px;display:block}button{font:inherit;cursor:pointer;border:1px solid #ccd7e9;border-radius:9px;background:white;color:#3955a0;padding:10px 14px;margin:4px 0;font-size:13px}button.primary{background:#3859c7;border-color:#3859c7;color:white}button.danger{background:#e9f0ff}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;flex-direction:column}.notice{background:#fff9ee;border:1px solid #f1e5d1;color:#85663c;padding:14px;border-radius:12px;font-size:12px;margin-top:20px}.status{padding:12px 16px;margin:20px 0;border-radius:10px;background:#edf4fe;min-height:48px;font-size:13px;white-space:pre-wrap}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:15px}.metric{background:#f6f8fc;padding:12px;border-radius:9px}.metric strong{display:block;font-size:17px}.metric span{font-size:11px;color:#8994a8}.foot{font-size:12px;color:#8994a8;text-align:center;margin:25px 0}.path{font-family:monospace;font-size:11px;word-break:break-word;color:#7889a9}input[type=file]{display:none}@media(max-width:720px){.grid{grid-template-columns:1fr}.head{align-items:flex-start}.head h1{font-size:20px}}
-</style></head><body><div class="container"><div class="head"><h1>مرکز آموزش نویس‌سنج</h1><div class="tag">خصوصی · فقط روی دستگاه شما</div></div><p class="subtitle">مدیریت مجموعه داده، ساخت مدل آزمایشی و انتشار کنترل‌شده — نسخه ۲.۴.۰</p>
-<p id="status" class="status">در حال بررسی وضعیت...</p><p class="caption">پوشه داده‌های شناسایی‌شده: <span id="path" class="path">—</span></p>
-<div class="grid" id="cards"></div>
-<div class="notice">مدل جدید خودکار روی سایت منتشر نمی‌شود. قبل از انتشار، به‌ویژه «خطای تشخیص متن انسانی» و تعداد نمونه‌های آزمون را بررسی کنید. خروجی اعداد، احتمال قطعی یا تضمین دقت عمومی نیست. داده‌های آموزشی فقط در پوشه محلی admin_data نگهداری می‌شوند و هرگز وارد GitHub Pages نمی‌شوند.</div>
-<p class="foot">برای انتشار تغییرات آنلاین پس از تأیید مدل، فایل publish.command را روی مک اجرا کنید.</p></div>
+@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-v33.003.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
+
+:root{font-family:Vazirmatn,Tahoma,system-ui,-apple-system,sans-serif;color:#202942;background:#f5f7fc;line-height:1.8}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}a{color:#3559be}h1,h2,h3,p{margin:0}header{background:#121b32;color:white;padding:24px max(18px,calc((100vw - 1190px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}header h1{font-size:23px}header p{font-size:12px;color:#abb9d5;margin-top:3px}.privacy{color:#95d0bd;font-size:12px;border:1px solid #3c6070;border-radius:30px;padding:6px 13px}.shell{max-width:1190px;margin:26px auto 70px;padding:0 20px}.tabs{display:flex;gap:6px;border-bottom:1px solid #dce3ef;margin-bottom:21px;overflow-x:auto}.tab{color:#71809b;background:none;border:0;padding:12px 20px;border-bottom:3px solid transparent;white-space:nowrap}.tab.active{font-weight:700;color:#3456b1;border-bottom-color:#5c70d7}.section{display:none}.section.active{display:block}.lead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}.lead h2{font-size:19px}.lead p{font-size:12px;color:#72809b}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:white;border:1px solid #e1e6ef;border-radius:15px;padding:20px;box-shadow:0 6px 24px #27385908}.card h3{font-size:16px;margin-bottom:12px}.big{font-size:29px;font-weight:800;color:#293859;line-height:1.3}.muted{color:#72809b;font-size:12px}.pill{display:inline-block;padding:4px 9px;border-radius:30px;background:#eff2fa;font-size:11px;color:#526588}.good{background:#e5f6ed;color:#267c4e}.warn{background:#fff2de;color:#925c24}.bad{background:#ffebeb;color:#af4343}.btn{background:white;color:#3554a4;border:1px solid #ccd7e8;border-radius:9px;padding:9px 14px;font-size:12px}.btn.primary{background:#4e61ce;border-color:#4e61ce;color:white}.btn.ghost{background:#f7f9fc}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.stat{background:#f5f7fd;padding:13px;border-radius:11px}.stat strong{display:block;font-size:21px}.stat span{color:#8190a8;font-size:11px}.notice{border:1px solid #f0dfb7;background:#fff9eb;padding:14px;border-radius:11px;color:#795b30;font-size:12px;margin:16px 0}.banner{background:#e8effc;border-radius:12px;padding:13px 17px;color:#395886;font-size:12px;margin-bottom:20px;white-space:pre-wrap}.banner.error{background:#fff0ef;color:#a83b42}.model{display:flex;flex-direction:column;gap:13px}.metricbar{height:9px;background:#f0f2f7;border-radius:15px;overflow:hidden}.metricbar i{display:block;height:100%;background:#6072d7}.source{border-top:1px solid #edf0f6;padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:8px}.source:first-child{border:0}.source strong{font-size:14px}.source .meta{font-size:11px;color:#76859c;direction:ltr;text-align:right;overflow-wrap:anywhere}fieldset{border:1px solid #dce4f0;border-radius:11px;padding:15px}legend{font-weight:700;font-size:13px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}label{font-size:12px;color:#51617b;display:block}label input:not([type=checkbox]),label select{width:100%;margin-top:4px;border:1px solid #cdd6e5;border-radius:8px;padding:8px 9px;background:white;color:#263653;direction:ltr;text-align:left}label.check{display:flex;align-items:flex-start;gap:8px;margin:8px 0;color:#35445e}label.check input{width:auto;margin-top:6px}details{margin-top:13px}summary{cursor:pointer;color:#355ac0}.sample{background:#f5f7fb;padding:10px;border-radius:8px;direction:ltr;text-align:left;font-size:11px;word-break:break-word;max-height:130px;overflow:auto;white-space:pre-wrap}.hidden{display:none!important}.small{font-size:11px}.gap{display:grid;gap:12px}footer{text-align:center;color:#7c879f;font-size:11px;margin-top:30px}code{direction:ltr;display:inline-block}#fileInput{display:none}@media(max-width:850px){.grid,.three,.formgrid{grid-template-columns:1fr}header{padding:20px}.source{grid-template-columns:1fr}.shell{padding:0 14px}}
+
+/* Simpler source onboarding */ 
+.steps{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 18px}.steps span{background:#e9eefc;color:#405480;border-radius:12px;padding:9px 15px;font-size:12px}.steps b{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;background:#5266ce;color:#fff;margin-left:6px}
+.review-card{border-color:#9cafec;margin-bottom:18px;scroll-margin-top:18px}.example-grid{display:grid;gap:9px;grid-template-columns:repeat(2,minmax(0,1fr));margin:10px 0 15px}.example{border:1px solid #e3e8f3;background:#f8f9fe;border-radius:11px;padding:12px;min-width:0}.example p{font-size:12px;line-height:1.8;max-height:135px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.review-meta{font-size:12px;color:#607391;margin-top:9px}.review-meta .pill{margin-left:6px}.training-hint{font-size:12px;background:#edf4fe;color:#425a87;padding:12px;border-radius:9px}.approve-checks{padding:12px;border:1px solid #e4e9f4;border-radius:10px}.approve-checks label{margin:0 0 6px}.approve-checks label:last-child{margin:0}input[type=search],#source-filter{border:1px solid #d5ddef;border-radius:9px;padding:9px;background:white;color:#35415b;font-size:12px;max-width:250px}.candidate-row{padding:14px 0;border-bottom:1px solid #e9edf5;display:flex;align-items:center;justify-content:space-between;gap:12px}.candidate-row:last-child{border-bottom:0}.candidate-row .details{min-width:0;flex:1}.candidate-row strong{font-size:13px;overflow-wrap:anywhere}.candidate-row .meta{font-size:11px;color:#7e8ba2;overflow-wrap:anywhere}.more{width:100%;margin-top:12px}.review-card details{border:1px solid #e3e9f3;border-radius:10px;padding:11px}.review-card details summary{font-size:12px}.review-card label input{font-size:12px}.source .meta{direction:ltr}@media(max-width:850px){.candidate-row{align-items:flex-start}.example-grid{grid-template-columns:1fr}input[type=search]{max-width:170px}}
+
+.training-hint.warning{background:#fff2df;color:#81561c}
+</style></head><body>
+<header><div><h1>مرکز مدیریت و آموزش نویس‌سنج</h1><p>کشف منابع، کیفیت داده‌ها، آموزش مستمر و انتشار مدل</p></div><span class="privacy">خصوصی · فقط همین مک</span></header>
+<div class="shell">
+<div class="banner" id="message" role="status">در حال دریافت وضعیت برنامه...</div>
+<nav class="tabs" aria-label="بخش‌های پنل"><button class="tab active" data-tab="overview">نمای کلی</button><button class="tab" data-tab="sources">کشف منابع</button><button class="tab" data-tab="models">مدل‌ها و ارزیابی</button><button class="tab" data-tab="settings">تنظیمات و انتشار</button></nav>
+<section class="section active" id="view-overview"><div class="lead"><div><h2>نمای کلی سیستم</h2><p>بلافاصله ببین آخرین بار چه اتفاقی افتاده و چه کاری باقی مانده.</p></div><button class="btn" id="refresh">به‌روزرسانی وضعیت</button></div><div class="grid three" id="summary"></div><div class="grid" style="margin-top:16px"><div class="card"><h3>جریان داده و آموزش</h3><div id="flow" class="gap"></div></div><div class="card"><h3>اقدامات سریع</h3><div class="gap"><button class="btn primary" id="quick-discover">انتخاب منبع آموزشی</button><button class="btn" id="quick-sync">بررسی داده‌های منابع فعال</button></div><div class="notice">نتیجه پیش‌بینی خود برنامه به داده آموزشی تبدیل نمی‌شود. فقط متن‌های دارای منشأ و برچسب معتبر وارد آموزش می‌شوند.</div></div></div></section>
+<section class="section" id="view-sources">
+  <div class="lead"><div><h2>اضافه‌کردن منبع آموزشی</h2><p>فقط منابع مناسب رو مرور کن؛ جزئیات فنی رو نویس‌سنج مدیریت می‌کنه.</p></div>
+    <button class="btn" id="discover">جست‌وجوی منابع تازه</button></div>
+  <div class="steps"><span><b>۱</b> منبع رو انتخاب کن</span><span><b>۲</b> نمونه‌ها و اعتبار رو ببین</span><span><b>۳</b> تأیید کن؛ ادامه خودکاره</span></div>
+  <div class="card hidden review-card" id="source-review" aria-label="بررسی منبع">
+    <div class="row between"><div><h3 id="review-title">بررسی منبع</h3><p class="muted" id="review-summary">در حال بررسی...</p></div><button type="button" class="btn" id="cancel-review">بستن</button></div>
+    <div class="review-meta" id="review-meta"></div>
+    <h3 style="margin-top:13px">نمونه‌های این منبع</h3>
+    <div id="review-samples" class="example-grid"></div>
+    <form id="approval-form" class="gap">
+      <div id="mapping-status" class="training-hint"></div>
+      <details id="mapping-details"><summary>تنظیمات پیشرفته داده — فقط در صورت نیاز</summary>
+        <div class="formgrid" style="margin-top:12px">
+          <label>پیکربندی<input name="config" required/></label>
+          <label>بخش داده<input name="split" required/></label>
+          <label>ستون متن<input name="text_field" required/></label>
+          <label>نوع داده
+            <select name="mode" id="source-mode">
+              <option value="paired">دو ستون مستقل: متن انسانی و متن AI</option>
+              <option value="column">متن انسانی و AI با برچسب جداگانه</option>
+              <option value="ai">فقط متن AI (پس از بررسی منشأ)</option>
+              <option value="human">فقط متن انسانی (پس از بررسی منشأ)</option>
+            </select>
+          </label>
+          <label id="label-field-box">ستون برچسب<input name="label_field" required/></label>
+          <label id="ai-value-box">مقدار برچسب AI<input name="ai_value" required/></label>
+          <label id="human-value-box">مقدار برچسب انسان<input name="human_value" required/></label>
+        </div>
+      </details>
+      <div class="approve-checks">
+        <label class="check"><input name="confirmed_license" type="checkbox" required/>مجوز استفاده آموزشی این مجموعه رو بررسی کردم.</label>
+        <label class="check"><input name="confirmed_provenance" type="checkbox" required/>توضیحات منبع درباره نحوه گردآوری و اعتبار داده‌ها رو بررسی کردم.</label>
+      </div>
+      <div class="row"><button type="submit" class="btn primary">تأیید و شروع دریافت داده</button>
+        <a id="review-link" href="#" target="_blank" rel="noopener noreferrer" class="btn">مشاهده صفحه اصلی منبع</a></div>
+      <p class="muted">بعد از تأیید، دریافت نمونه‌ها و ساخت مدل آزمایشی انجام می‌شه. انتشار مدل عمومی همچنان با تأیید شماست.</p>
+    </form>
+  </div>
+  <div class="card">
+    <div class="row between"><div><h3>منابع پیشنهادی برای بررسی <span class="pill" id="candidate-count">۰</span></h3>
+      <p class="muted" id="source-description">در بخش فارسی، منابعی که عنوان یا متادیتای فارسی دارند ابتدا دیده می‌شوند. زبان واقعی بعد از بررسی متن‌ها مشخص می‌شود.</p></div>
+      <div class="row"><input id="source-search" type="search" placeholder="جست‌وجو بین منابع..." aria-label="جست‌وجوی منابع"/>
+        <select id="language-filter" aria-label="زبان منابع">
+          <option value="fa">فارسی — اولویت من</option>
+          <option value="en">انگلیسی</option>
+          <option value="all">همه زبان‌ها</option>
+        </select>
+        <select id="source-filter" aria-label="فیلتر منابع"><option value="relevant">مرتبط‌ترها</option><option value="all">همه منابع</option></select></div></div>
+    <div id="candidates"></div><button class="btn more hidden" id="more-sources">نمایش منابع بیشتر</button>
+  </div>
+  <details class="card" style="margin-top:16px"><summary>منابعی که قبلاً تأیید کردی <span class="pill" id="approved-count">۰</span></summary>
+    <div class="row" style="margin-top:12px"><button class="btn" id="sync">بررسی و دریافت داده‌های جدید</button></div>
+    <div id="approved"></div>
+    <p class="muted" style="margin-top:12px">اگر منبع فعال است اما هنوز ۰ نمونه به آموزش اضافه شده، ممکن است متن‌ها کوتاه‌تر از حداقل ۳۵ واژه باشند یا در کنترل‌های کیفیت رد شده باشند. وضعیت در همگام‌سازی‌های بعدی دوباره بررسی می‌شود.</p></details>
+</section>
+<section class="section" id="view-models"><div class="lead"><div><h2>مدل‌ها و کیفیت تشخیص</h2><p>دو زبان مستقل، مشخصات آزمون، مدل آزمایشی و نسخه منتشرشده</p></div><button class="btn" id="train-now">بازآموزی در صورت تغییر داده</button></div><div class="grid" id="model-cards"></div><div class="notice">حتی اگر صحت آزمون داخلی ۱۰۰٪ باشد، لزوماً به معنی دقت واقعی نیست؛ به‌خصوص با تعداد کم نمونه‌های آزمون. مدل جدید فقط پس از تأیید دستی روی سایت منتشر می‌شود.</div></section>
+<section class="section" id="view-settings"><div class="lead"><div><h2>تنظیمات مدیریت</h2><p>کنترل بازآموزی خودکار و انتشار امن مدل‌های تأییدشده</p></div></div><div class="grid"><div class="card gap"><h3>زمان‌بندی آموزش و کشف داده</h3><p id="scheduler-info" class="muted">در حال بررسی...</p><button class="btn primary" id="toggle-schedule">فعال‌سازی زمان‌بندی ساعتی</button><p class="muted">این زمان‌بندی روی macOS اجرا می‌شود. وقتی مک خاموش باشد اجرا نمی‌شود. همچنین منبع تازه کشف‌شده بدون بررسی منشأ و مجوز خودکار تأیید نمی‌شود.</p></div><div class="card gap"><h3>ورود داده شخصی یا سازمانی</h3><p class="muted">مجموعه‌های JSONL، CSV یا JSON با ستون‌های text، label و group را می‌توانی وارد کنی. این کار برای استفاده روزانه اجباری نیست.</p><div class="row"><select id="upload-language"><option value="fa">فارسی</option><option value="en">انگلیسی</option></select><button class="btn" id="upload-trigger">انتخاب فایل آموزشی</button><input type="file" id="fileInput" accept=".csv,.json,.jsonl"/></div></div></div><div class="card" style="margin-top:16px"><h3>انتشار سایت عمومی</h3><p class="muted">پس از تأیید مدل در بخش «مدل‌ها»، برای ارسال به GitHub از فایل <code>publish.command</code> در پوشه برنامه استفاده کن. این پنل روی سایت عمومی نصب نمی‌شود و داده‌های آموزشی در مخزن منتشر نمی‌شوند.</p></div></section>
+<footer>نویس‌سنج ۲.۵.۶ · مرکز آموزش محلی و خصوصی</footer></div>
 <script nonce="nevislocal">
-const TOKEN='%%TOKEN%%';
-const $=id=>document.getElementById(id);let state=null,busy=false;
-function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function f(v){return v===undefined||v===null?'—':(Math.round(v*1000)/10).toLocaleString('fa-IR')+'٪';}
-function msg(s,error=false){$('status').textContent=s;$('status').style.background=error?'#fceef1':'#edf4fe';}
-async function refresh(){try{const r=await fetch('/api/status');state=await r.json();$('path').textContent=state.auto_source||'پوشه آماده پیدا نشد؛ از انتخاب فایل استفاده کنید.';render();}catch(e){msg('ارتباط با پنل آموزش برقرار نشد.',true)}}
-function render(){const wrap=$('cards');wrap.innerHTML=['fa','en'].map(lang=>{const obj=state.languages[lang],m=obj.candidate,p=obj.published;
-return `<section class="card"><h2>مدل ${lang==='fa'?'فارسی':'انگلیسی'}</h2><div class="caption">${p?'مدل منتشرشده وجود دارد':'مدل عمومی هنوز منتشر نشده'}</div>
-<div class="pills"><div class="pill"><b>${obj.counts.human||0}</b> نمونه انسانی</div><div class="pill"><b>${obj.counts.ai||0}</b> نمونه ماشینی</div><div class="pill"><b>${obj.groups||0}</b> موضوع مستقل</div></div>
-<div class="actions"><button data-act="auto" data-lang="${lang}">۱. واردکردن خودکار از Downloads</button><button data-act="choose" data-lang="${lang}">یا انتخاب فایل آموزشی</button><input id="file-${lang}" type="file" accept=".csv,.jsonl,.json"><button class="primary" data-act="train" data-lang="${lang}" ${obj.total<48?'disabled':''}>۲. آموزش و ارزیابی مدل جدید</button></div>
-${m?`<div class="metrics"><div class="metric"><strong>${f(m.accuracy)}</strong><span>صحت روی آزمون کنارگذاشته‌شده</span></div><div class="metric"><strong>${f(m.false_positive_rate)}</strong><span>اشتباه در تشخیص انسانی</span></div><div class="metric"><strong>${f(m.ai_recall)}</strong><span>پیداکردن متن ماشینی</span></div><div class="metric"><strong>${m.test_count}</strong><span>نمونه آزمون</span></div></div>`:'<p class="caption">برای مشاهده معیارهای ارزیابی، مدل را آموزش بدهید.</p>'}
-<button class="danger" data-act="publish" data-lang="${lang}" ${!m?'disabled':''}>۳. تأیید و آماده‌سازی برای انتشار سایت</button></section>`}).join('');
-wrap.querySelectorAll('[data-act]').forEach(btn=>btn.onclick=()=>execute(btn.dataset.act,btn.dataset.lang));}
-async function execute(action,lang){if(busy)return;
-if(action==='choose'){$('file-'+lang).click();const el=$('file-'+lang);el.onchange=async()=>{const file=el.files?.[0];if(file){if(file.size>20000000){msg('فایل بیش از اندازه بزرگ است.',true);return;}await send('/api/upload',{language:lang,filename:file.name,content:await file.text()});el.value='';}};return;}
-if(action==='publish'&&!confirm('مدل آزمایشی '+lang+' را برای سایت عمومی تأیید می‌کنید؟ این اقدام امتیازها را معتبر یا قطعی نمی‌کند.'))return;
-const target=action==='auto'?'/api/auto-import':action==='train'?'/api/train':'/api/publish';
-await send(target,{language:lang,confirm:action==='publish'});
+'use strict';const TOKEN='%%TOKEN%%';const $=x=>document.getElementById(x);let state=null,active='overview',busy=false,reviewId=null,reviewPreview=null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const date=s=>{if(!s)return 'ثبت نشده';try{return new Date(s).toLocaleString('fa-IR')}catch{return 'ثبت نشده'}};
+const pct=v=>v==null?'—':(v*100).toLocaleString('fa-IR',{maximumFractionDigits:1})+'٪';
+const info=(msg,isError=false)=>{const x=$('message');x.textContent=msg;x.classList.toggle('error',isError)};
+function tab(id){active=id;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id==='view-'+id));}
+document.querySelectorAll('.tab').forEach(x=>x.onclick=()=>tab(x.dataset.tab));
+async function status(){const r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error('ارتباط با پنل قطع شده');state=await r.json();render();}
+async function action(route,payload={}){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);info('در حال انجام عملیات، وضعیت پس از پایان ثبت می‌شود...');try{const r=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json','X-Nevis-Token':TOKEN},body:JSON.stringify(payload)});const x=await r.json();if(!r.ok)throw Error(x.error||'عملیات انجام نشد');state=x.status;render();info('عملیات انجام شد. '+(route==='/api/discover'?`${x.result.added} منبع تازه شناسایی شد. ${(x.result.errors||[]).length?'بعضی درخواست‌ها ناموفق بودند؛ جزئیات در وضعیت منابع نمایش داده می‌شود.':''}`:route==='/api/sync-sources'?`${x.result.added.fa} فارسی و ${x.result.added.en} انگلیسی اضافه شد.`:''));return x.result;}catch(e){info(e.message,true)}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);render()}}
+let visibleSources=7;
+function sourceRank(x){
+  const name=String(x.id||'').toLowerCase().replace(/[_]+/g,'-');
+  let score=0;
+  if(/(ai.{0,12}vs.{0,12}human|human.{0,12}vs.{0,12}ai|human.{0,12}written.{0,12}ai|ai.{0,12}text.{0,12}detect|ai.{0,12}generated.{0,12}text)/.test(name))score+=10;
+  if(/(farsi|persian)/.test(name))score+=3;
+  if(/(llm|generated|human|text|writing|essay|detector)/.test(name))score+=2;
+  if(/(sentiment|med-qa|medical|text2sql|ecommerce|logistics|alpaca|fibonacci|fraud|pay-for|vendors|recruit|data-quality|images|audio|python|code|big-data|stock|ocr|cooking|translation)/.test(name))score-=13;
+  if(!((state.discovery?.allowed_licenses||[]).includes(String(x.license||'').toLowerCase())))score-=7;
+  if(x.language_measured==='fa')score+=9;
+  else if(x.language_hint==='fa')score+=5;
+  if(x.preview_usable>15&&x.preview_ingest_ready)score+=4;
+  if(x.quality_warning)score-=25;
+  if(x.preview_issue)score-=15;
+  if(x.preview_mode==='rows')score+=2;
+  if(x.gated)score-=20;
+  return score;
 }
-async function send(route,payload){busy=true;document.querySelectorAll('button').forEach(x=>x.disabled=true);msg('در حال انجام عملیات...');try{
-const response=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json','X-Nevis-Token':TOKEN},body:JSON.stringify(payload)});
-const body=await response.json();if(!response.ok)throw Error(body.error||'خطای عملیات');
-msg(route.includes('train')?'مدل آزمایشی آموزش دید. معیارهای ارزیابی را قبل از انتشار بررسی کنید.':route.includes('publish')?'مدل برای انتشار آماده شد. برای ارسال به GitHub فایل publish.command را اجرا کنید.':'داده‌های آموزشی با موفقیت وارد شدند.');state=body.status;render();
-}catch(e){msg(e.message,true);render();}finally{busy=false;}}
-refresh();
+function renderSourceList(){
+  if(!state)return;
+  const all=(state.discovery?.candidates||[]).filter(x=>x.status!=='dismissed');
+  const filter=$('source-filter').value,q=$('source-search').value.toLowerCase().trim();
+  const lang=$('language-filter').value;
+  const inLanguage=x=>lang==='all'||(
+    x.language_measured&&x.language_measured!=='unknown'?
+      x.language_measured===lang:
+      (x.language_hint||(/persian|farsi/i.test(x.id)?'fa':'unknown'))===lang);
+  const languageResults=all.filter(inLanguage);
+  const relevant=languageResults.filter(x=>sourceRank(x)>=7);
+  let list=(filter==='relevant'?relevant:languageResults).filter(x=>!q||x.id.toLowerCase().includes(q));
+  list.sort((a,b)=>sourceRank(b)-sourceRank(a)||String(b.modified).localeCompare(String(a.modified)));
+  $('candidate-count').textContent=(filter==='relevant'?relevant.length:languageResults.length).toLocaleString('fa-IR')+' از '+all.length.toLocaleString('fa-IR');
+  $('source-description').textContent=lang==='fa'?
+    'فارسی در اولویت قرار داره؛ عنوان فارسی فقط سرنخه، زبان واقعی با نمونه‌های متن بررسی می‌شه.':
+    lang==='en'?'منابع پیشنهادی انگلیسی، پس از بررسی زبان واقعی نمونه‌ها وارد آموزش می‌شن.':
+    'همه منابع بدون توجه به زبان دیده می‌شن. فقط نمونه‌های فارسی به مدل فارسی و انگلیسی به مدل انگلیسی می‌رن.';
+  const shown=list.slice(0,visibleSources);
+  $('candidates').innerHTML=shown.map(x=>{
+    const licensed=(state.discovery?.allowed_licenses||[]).includes(String(x.license||'').toLowerCase());
+    return `<div class="candidate-row"><div class="details">
+      <strong dir="ltr">${esc(x.id)}</strong>
+      <div class="meta">${esc(x.license||'مجوز نامشخص')} · ${Number(x.downloads||0).toLocaleString('fa-IR')} دریافت ·
+        ${x.language_measured==='fa'?'زبان بررسی‌شده: فارسی':x.language_measured==='en'?'زبان بررسی‌شده: انگلیسی':
+        x.language_hint==='fa'?'احتمالاً فارسی (در انتظار بررسی)':x.language_hint==='en'?'احتمالاً انگلیسی (در انتظار بررسی)':'زبان هنوز بررسی نشده'}</div>
+      </div><div class="row"><button class="btn primary" data-review="${esc(x.id)}" ${(!licensed||x.gated)?'disabled title="مجوز یا دسترسی این منبع قابل تأیید نیست"':''}>بررسی نمونه‌ها</button>
+      <button class="btn ghost" data-reject="${esc(x.id)}" title="حذف از فهرست">حذف</button></div></div>`;
+  }).join('')||(q?'<p class="muted" style="padding:20px 0">با این جست‌وجو منبعی پیدا نشد.</p>':'<p class="muted" style="padding:20px 0">فعلاً گزینه مناسبی پیدا نشده. با «همه منابع» موارد دیگر را ببین.</p>');
+  $('more-sources').classList.toggle('hidden',list.length<=visibleSources);
+  $('more-sources').textContent='نمایش موارد بیشتر ('+(list.length-visibleSources).toLocaleString('fa-IR')+' مورد باقی‌مانده)';
+  $('candidates').querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>review(b.dataset.review));
+  $('candidates').querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>action('/api/reject-source',{identifier:b.dataset.reject}));
+}
+function render(){if(!state)return;const a=state.automation||{},d=state.discovery||{},list=d.candidates||[],approved=d.approved||[],sch=state.scheduler||{};
+$('summary').innerHTML=[['مدل فارسی',state.languages.fa],['مدل انگلیسی',state.languages.en]].map(([name,x])=>`<div class="card"><span class="muted">${name}</span><div class="big">${(x.total||0).toLocaleString('fa-IR')} <small style="font-size:12px">نمونه</small></div><span class="pill ${x.candidate?'good':'warn'}">${x.candidate?'آموزش دیده':'بدون مدل آزمایشی'}</span> <span class="pill ${x.published?'good':'warn'}">${x.published?'روی سایت فعال':'هنوز منتشر نشده'}</span></div>`).join('')+`<div class="card"><span class="muted">منابع تازه کشف‌شده</span><div class="big">${list.filter(x=>x.status!=='dismissed').length.toLocaleString('fa-IR')}</div><span class="pill">${approved.length} منبع تأییدشده</span></div>`;
+$('flow').innerHTML=`<div class="stat">آخرین کشف اینترنتی: <strong>${date(d.last_discovery)}</strong>${d.last_error?'<small class="pill warn">بخشی از جست‌وجو با خطا مواجه شد</small>':''}</div><div class="stat">آخرین بررسی خودکار: <strong>${date(a.checked_at)}</strong></div><div class="stat">زمان‌بندی: <strong>${esc(sch.detail||'وضعیت نامشخص')}</strong></div><div class="stat">آخرین همگام‌سازی منابع: <strong>${date(d.last_sync)}</strong></div>`;
+$('approved-count').textContent=approved.length;
+renderSourceList();
+$('approved').innerHTML=approved.length?approved.map(x=>`<div class="source"><div><strong>${esc(x.id)}</strong><div class="meta">${esc(x.license)} · ${Number(x.added||0).toLocaleString('fa-IR')} نمونه دریافت‌شده · ${date(x.last_sync)}</div>${x.last_error?`<small class="pill bad">${esc(x.last_error)}</small>`:''}<span class="pill ${x.enabled?'good':'warn'}">${x.enabled?'فعال':'غیرفعال'}</span></div><button class="btn" data-disable="${esc(x.id)}" ${!x.enabled?'disabled':''}>غیرفعال‌کردن</button></div>`).join(''):'<p class="muted" style="padding-top:14px">هنوز منبع تأییدشده‌ای نداریم.</p>';
+$('approved').querySelectorAll('[data-disable]').forEach(b=>b.onclick=()=>{if(confirm('دریافت خودکار از این منبع متوقف شود؟ داده‌های قبلی حفظ می‌شوند.'))action('/api/disable-source',{identifier:b.dataset.disable})});
+$('model-cards').innerHTML=['fa','en'].map(lang=>{const x=state.languages[lang],m=x.candidate,run=a.languages?.[lang]||{};return `<article class="card model"><div class="row between"><h3>مدل ${lang==='fa'?'فارسی':'انگلیسی'}</h3><span class="pill ${x.published?'good':'warn'}">${x.published?'منتشر شده':'منتظر انتشار'}</span></div><div class="grid"><div class="stat"><strong>${x.counts.human||0}</strong><span>متن انسانی</span></div><div class="stat"><strong>${x.counts.ai||0}</strong><span>متن ماشینی</span></div></div>${!x.readiness?.ready?'<p class="notice">مدل هنوز برای استناد به امتیاز منشأ متن آماده نیست؛ حداقل '+(x.readiness?.human_gap_to_100||0)+' نمونه انسانی دیگر برای رسیدن به حداقل اولیه نیاز است. تنوع منابع و آزمون مستقل هم ضروری‌اند.</p>':''}<p class="muted">آخرین آموزش: ${date(run.trained_at)} · آخرین بررسی: ${date(a.checked_at)}</p><span class="pill">وضعیت: ${esc(run.state||'نامشخص')}</span>${m?`<div class="grid"><div class="stat"><strong>${pct(m.accuracy)}</strong><span>صحت آزمون داخلی (نامتوازن)</span></div><div class="stat"><strong>${pct(m.false_positive_rate)}</strong><span>خطای تشخیص انسانی</span></div><div class="stat"><strong>${pct(m.ai_recall)}</strong><span>بازیابی متن ماشینی</span></div><div class="stat"><strong>${m.test_count||0}</strong><span>تعداد نمونه آزمون</span></div></div><p class="muted">آزمون انسانی: ${m.test_human||0} · آزمون ماشینی: ${m.test_ai||0} · صحت متوازن: ${m.balanced_accuracy!=null?pct(m.balanced_accuracy):'در نسخه بعدی آموزش محاسبه می‌شود'}</p><p class="muted">تعداد نمونه ارزیابی محدود است و درصدها احتمال قطعی نیستند.</p>`:'<p class="muted">مدل آزمایشی هنوز آماده نیست؛ داده‌های معتبر جدید لازم است.</p>'}<button class="btn primary" data-publish="${lang}" ${!m?'disabled':''}>تأیید مدل برای انتشار عمومی</button></article>`}).join('');
+$('model-cards').querySelectorAll('[data-publish]').forEach(b=>b.onclick=()=>{if(confirm('مدل '+b.dataset.publish+' را برای انتشار تأیید می‌کنی؟'))action('/api/publish',{language:b.dataset.publish,confirm:true})});
+$('scheduler-info').textContent=sch.detail||'وضعیت ثبت نشده';$('toggle-schedule').textContent=state.scheduler_enabled?'غیرفعال‌کردن زمان‌بندی ساعتی':'فعال‌سازی زمان‌بندی ساعتی';}
+async function review(id){
+  reviewId=id;reviewPreview=null;tab('sources');
+  $('source-review').classList.remove('hidden');
+  $('review-title').textContent='بررسی '+id;
+  $('review-summary').textContent='در حال دریافت نمونه‌های قابل بررسی...';
+  $('review-samples').textContent='';
+  $('review-meta').textContent='';
+  $('mapping-status').textContent='';
+  $('source-review').scrollIntoView({behavior:'smooth',block:'start'});
+  const result=await action('/api/preview-source',{identifier:id});
+  if(!result){$('source-review').classList.add('hidden');reviewId=null;return;}
+  reviewPreview=result;
+  const src=(state.discovery?.candidates||[]).find(x=>x.id===id);
+  const form=$('approval-form'),suggest=result.suggestion||{};
+  form.elements.config.value=result.config;
+  form.elements.split.value=result.split;
+  form.elements.text_field.value=suggest.text_field||'';
+  form.elements.label_field.value=suggest.label_field||'';
+  form.elements.ai_value.value=suggest.ai_value||'';
+  form.elements.human_value.value=suggest.human_value||'';
+  form.elements.mode.value=suggest.mode==='paired'?'paired':suggest.mode==='ai'?'ai':suggest.mode==='human'?'human':'column';
+  setSourceMode();
+  const unresolved=!suggest.ready;
+  $('mapping-details').open=false;
+  const limited=!result.ingest_ready;
+  const tooShort=Boolean(result.quality_warning);
+  const actualLanguage=result.measured_language||'unknown';
+  const langMatch=actualLanguage==='fa'||actualLanguage==='en';
+  const sampleLang=actualLanguage==='fa'?'فارسی':actualLanguage==='en'?'انگلیسی':'نامشخص یا ترکیبی';
+  $('mapping-status').textContent=limited?
+    'این منبع فقط پیش‌نمایش محدود داره و برای دریافت داده آموزشی آماده نیست. گزینه دیگه‌ای انتخاب کن.':
+    tooShort?'نمونه‌های بررسی‌شده برای آموزش خیلی کوتاه‌اند؛ فعلاً این منبع مناسب نیست.':
+    suggest.mapping_conflict?'توضیحات دیتاست و ستون منشأ با هم تناقض دارن؛ از این منبع استفاده نمی‌کنیم.':
+    suggest.mode==='paired'?
+      'این مجموعه دو ستون مستقل داره: human_text (انسانی) و ai_text (AI). هر ردیف به دو نمونه آموزشی هم‌موضوع تبدیل می‌شه. نیازی به تعیین دستی برچسب نیست.':
+    suggest.evidence==='documented_ai_only'?
+      'طبق مستندات رسمی و ستون‌های «مدل تولیدکننده» و «منشأ»، همه نمونه‌های این مجموعه ماشینی‌اند. این منبع فقط به آموزش دسته AI فارسی کمک می‌کنه؛ برای آموزش متوازن همچنان متن انسانی معتبر لازم داریم.':
+    suggest.evidence==='documentation_and_source'?
+      'طبق توضیحات منتشرشده دیتاست و ستون منشأ: برچسب '+suggest.human_value+' = انسانی، '+suggest.ai_value+' = AI. این تطابق به‌تنهایی صحت تمام نمونه‌ها رو تضمین نمی‌کنه.':
+    suggest.evidence==='dataset_documentation'?
+      'طبق توضیحات منتشرشده منبع: برچسب '+suggest.human_value+' = انسانی، '+suggest.ai_value+' = AI.':
+    suggest.evidence==='explicit_source_column'?
+      'ستون منشأ با برچسب‌ها سازگاره: '+suggest.human_value+' = انسانی، '+suggest.ai_value+' = AI.':
+    suggest.ready?'برچسب‌های توصیفی منبع تشخیص داده شدن؛ کیفیت نمونه‌ها همچنان باید بررسی بشه.':
+    'معنی برچسب‌ها مدرک کافی نداره. نیازی نیست از روی متن حدس بزنی؛ این منبع فعلاً قابل تأیید نیست.';
+  $('approval-form').dataset.ingestReady=String(!limited&&!tooShort&&!unresolved&&langMatch);
+  $('approval-form').querySelector('[type=submit]').disabled=limited||tooShort||unresolved||!langMatch;
+  $('mapping-status').classList.toggle('warning',limited||tooShort||unresolved);
+  $('approval-form').querySelector('[type=submit]').title=unresolved?'اطلاعات کافی برای تشخیص منشأ وجود ندارد':'';
+  form.elements.confirmed_license.checked=false;
+  form.elements.confirmed_provenance.checked=false;
+  $('review-meta').innerHTML=(suggest.evidence==='documented_ai_only'?'<span class="pill">منبع فقط متن ماشینی</span>':'')+'<span class="pill">'+esc(src?.license||'مجوز نامشخص')+'</span><span class="pill">'+(Number(result.total||0).toLocaleString('fa-IR'))+' ردیف گزارش‌شده</span><span class="pill">زبان نمونه‌ها: '+sampleLang+'</span><span class="pill">نمونه قابل استفاده: '+Number(result.usable_preview_rows||0).toLocaleString('fa-IR')+' از '+Number(result.preview_rows_checked||0).toLocaleString('fa-IR')+'</span>';
+  if(!langMatch&&!limited&&!tooShort){
+    $('mapping-status').textContent='زبان این مجموعه در نمونه‌ها قابل تأیید نیست؛ برای جلوگیری از مخلوط‌شدن داده‌ها، فعلاً وارد آموزش نمی‌شه.';
+    $('mapping-status').classList.add('warning');
+  }
+  $('review-summary').textContent=result.ingest_ready?
+    'نمونه‌ها رو با صفحه اصلی منبع مقایسه کن. پیش‌نمایش به معنی معتبر بودن برچسب‌ها نیست.':
+    'فقط پیش‌نمایش اولیه در دسترسه؛ مسیر دریافت داده‌های آموزشی این منبع در حال حاضر کار نمی‌کنه.';
+  $('review-link').href=src?.link||'https://huggingface.co/datasets/'+encodeURIComponent(id);
+  const fields=result.fields||[];
+  const textField=suggest.text_field||fields.find(x=>['text','content','writing','response'].includes(x));
+  const sampleRows=suggest.mode==='paired'?
+    (result.examples||[]).slice(0,2).flatMap((row,i)=>[
+      {text:row.human_text,label:'برچسب منبع: انسانی',group:i+1},
+      {text:row.ai_text,label:'برچسب منبع: AI',group:i+1}
+    ]):
+    (result.examples||[]).slice(0,4).map((row,i)=>{
+      const label=String(suggest.label_field?row[suggest.label_field]??'':'');
+      const meaning=suggest.evidence==='documented_ai_only'?'منشأ مستند: متن AI':
+      suggest.ready&&label===String(suggest.ai_value)?'برچسب منبع: AI':
+        suggest.ready&&label===String(suggest.human_value)?'برچسب منبع: انسانی':
+        label?'برچسب منبع: نامشخص':'';
+      const body=String((suggest.text_field&&row[suggest.text_field])||
+        Object.values(row).find(v=>typeof v==='string'&&v.length>50)||'نمونه متنی قابل نمایش نیست');
+      return {text:body,label:meaning,group:i+1};
+    });
+  $('review-samples').innerHTML=sampleRows.map((row,i)=>'<div class="example"><div class="row between"><b>'+
+    (suggest.mode==='paired'?'ردیف '+row.group+' · ':'')+'نمونه '+(i+1).toLocaleString('fa-IR')+
+    '</b>'+(row.label?'<span class="pill">'+esc(row.label)+'</span>':'')+
+    '</div><p dir="auto">'+esc(String(row.text||'متنی در این فیلد موجود نیست').slice(0,650))+'</p></div>').join('')||
+    '<p class="muted">نمونه‌ای برای نمایش وجود ندارد.</p>';
+}
+function setSourceMode(){const mode=$('source-mode').value;['label-field-box','ai-value-box','human-value-box'].forEach(x=>$(x).classList.toggle('hidden',mode!=='column'));const f=$('approval-form');f.elements.label_field.required=mode==='column';f.elements.ai_value.required=mode==='column';f.elements.human_value.required=mode==='column';}
+$('source-mode').onchange=setSourceMode;
+$('approval-form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget;
+  if(f.elements.mode.value==='column'&&(!f.elements.ai_value.value.trim()||!f.elements.human_value.value.trim())){
+    $('mapping-details').open=true;
+    info('برای این منبع معنی برچسب‌ها هنوز مشخص نیست. از صفحه اصلی بررسی کن و سپس ثبت کن.',true);
+    return;
+  }
+  const data=Object.fromEntries(new FormData(f).entries());data.identifier=reviewId;if(data.mode==='ai'||data.mode==='human'){data.label_field='__constant_'+data.mode+'__';data.ai_value='ai';data.human_value='human';}delete data.mode;data.confirmed_license=f.elements.confirmed_license.checked;data.confirmed_provenance=f.elements.confirmed_provenance.checked;const result=await action('/api/approve-source',data);if(result){$('source-review').classList.add('hidden');reviewId=null;info('منبع تأیید شد. در حال دریافت داده و آموزش آزمایشی...');const sync=await action('/api/sync-sources');if(sync){tab('overview');info('منبع فعال شد؛ داده‌ها بررسی شدند و در صورت کافی‌بودن نمونه‌ها، مدل آزمایشی به‌روزرسانی شد.');}}};
+$('cancel-review').onclick=()=>{$('source-review').classList.add('hidden');reviewId=null;};
+$('source-search').oninput=()=>{visibleSources=7;renderSourceList();};$('source-filter').onchange=()=>{visibleSources=7;renderSourceList();};
+$('language-filter').onchange=()=>{visibleSources=7;renderSourceList();};$('more-sources').onclick=()=>{visibleSources+=7;renderSourceList();};
+$('refresh').onclick=()=>status().then(()=>info('وضعیت به‌روزرسانی شد.')).catch(e=>info(e.message,true));
+$('discover').onclick=()=>action('/api/discover');$('quick-discover').onclick=()=>tab('sources');
+$('sync').onclick=$('quick-sync').onclick=()=>action('/api/sync-sources');
+$('train-now').onclick=()=>action('/api/sync',{language:'fa'});
+$('toggle-schedule').onclick=()=>action(state.scheduler_enabled?'/api/schedule-disable':'/api/schedule-enable',{language:'fa'});
+$('upload-trigger').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>20000000)return info('حجم فایل بیشتر از حد مجاز است.',true);await action('/api/upload',{language:$('upload-language').value,filename:file.name,content:await file.text()});e.target.value='';};
+status().then(()=>info('پنل آماده است. کشف منابع جدید و آموزش به‌صورت جداگانه مدیریت می‌شوند.')).catch(e=>info(e.message,true));
+setInterval(()=>{if(!busy)status().catch(()=>{})},20000);
 </script></body></html>

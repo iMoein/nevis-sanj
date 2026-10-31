@@ -956,188 +956,620 @@ var NevisEngine;
     }
     NevisEngine.predictOnnx = predictOnnx;
 })(NevisEngine || (NevisEngine = {}));
-/** NevisSanj public product — detection flow only; no training or administration routes. */
+/** React + TypeScript UI. Compiled to a single, offline-friendly browser script. */
 var NevisApp;
 (function (NevisApp) {
-    const sample = 'در دنیای امروز استفاده از فناوری‌های نوین در سازمان‌ها نقش مهمی ایفا می‌کند. از سوی دیگر، توجه به تجربه کاربران و تحلیل اطلاعات می‌تواند به تصمیم‌گیری بهتر منجر شود. با این حال، نمی‌توان برای همه کسب‌وکارها یک مسیر ثابت پیشنهاد کرد. انتخاب ابزار مناسب به اندازه تیم، نوع مسئله و محدودیت منابع بستگی دارد. علاوه بر این، مدیران باید میزان تأثیر تغییرات را با شاخص‌های مشخص بررسی کنند. در نهایت می‌توان گفت ترکیب برنامه‌ریزی دقیق، گفت‌وگو با کاربران و بازبینی مستمر نتایج، به ایجاد یک مسیر توسعه پایدار کمک خواهد کرد. این نمونه صرفاً برای نمایش فرایند تحلیل در نویس‌سنج تهیه شده است و نباید برای نتیجه‌گیری درباره منشأ قطعی متن به کار رود. کاربران می‌توانند با قراردادن یک متن تازه و طولانی‌تر، الگوهای نوشتار و ارزیابی مدل محلی را مشاهده کنند.';
-    const labels = { fa: 'فارسی', en: 'انگلیسی', mixed: 'چندزبانه', unknown: 'نامشخص' };
+    const TEMPLATE_SAMPLE = `در دنیای امروز، فناوری هوش مصنوعی نقش کلیدی در تحول کسب‌وکارها ایفا می‌کند. با پیشرفت روزافزون فناوری، سازمان‌ها با چالش‌ها و فرصت‌های متعددی روبه‌رو هستند. در این راستا، استفاده از راهکارهای نوآورانه از اهمیت بالایی برخوردار است.
+
+علاوه بر این، توجه به نیازهای کاربران امری ضروری است. این موضوع نه تنها به بهبود تجربه کاربری کمک می‌کند، بلکه همچنین بستر مناسبی برای رشد و توسعه فراهم می‌کند. بدون شک، سازمان‌هایی که از این ظرفیت بهره می‌برند، می‌توانند به نتایج بهتری دست پیدا کنند.
+
+از سوی دیگر، پیاده‌سازی این رویکرد مستلزم برنامه‌ریزی دقیق است. در این راستا، ایجاد هماهنگی میان تیم‌ها نقش مهمی ایفا می‌کند. همچنین، بهره‌گیری از داده‌ها می‌تواند مسیر تصمیم‌گیری را بهبود ببخشد و فرصت‌های جدیدی ایجاد کند.
+
+در نهایت می‌توان گفت که موفقیت در عصر دیجیتال نیازمند نگاه جامع و رویکردی منعطف است. به طور کلی، با توجه به اهمیت این موضوع، حرکت در مسیر تحول دیجیتال گامی مهم در راستای آینده‌ای بهتر خواهد بود.`;
+    const NATURAL_SAMPLE = `سه‌شنبه قرار بود صفحه گزارش فروش را تحویل بدهیم. ساعت ۹ صبح فهمیدیم عدد سفارش‌های ثبت‌شده با خروجی حسابداری نمی‌خواند. اختلاف فقط ۱۷ سفارش بود، اما نمی‌شد آن را نادیده گرفت.
+
+اول فکر کردم مسئله از منطقه زمانی سرور است. بعد از مقایسه شناسه سفارش‌ها مشخص شد چند سفارش لغوشده هنوز در کوئری گزارش حضور دارند. شرط وضعیت را اصلاح کردم و از همکارم خواستم داده‌های ۱۲ روز گذشته را دوباره بررسی کند.
+
+تا ساعت ۲ بعدازظهر اختلاف به صفر رسید. چیزی که از این ماجرا یاد گرفتم این بود که «گزارش درست» فقط به نوشتن یک کوئری خوب ربط ندارد. باید پیش از انتشار، تعریف دقیق هر شاخص را با کسی که قرار است از آن تصمیم بگیرد، هماهنگ کنیم. برای گزارش بعدی هم یک تست ساده اضافه کردیم تا این اختلاف زودتر مشخص شود.`;
+    const iconPaths = {
+        spark: ['M12 3l1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9L12 3Z', 'M19.5 18.5l.65 1.35 1.35.65-1.35.65-.65 1.35-.65-1.35-1.35-.65 1.35-.65.65-1.35Z'],
+        shield: ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z', 'm9 12 2 2 4-4'],
+        upload: ['M12 16V3', 'm6 9 6-6 6 6', 'M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3'],
+        clipboard: ['M9 4h6', 'M9 2h6v4H9z', 'M7 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1', 'M8 11h8', 'M8 15h8'],
+        chevron: ['m9 18 6-6-6-6'], download: ['M12 3v12', 'm7 10 5 5 5-5', 'M5 17v3h14v-3'],
+        file: ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z', 'M14 2v6h6', 'M8 13h8', 'M8 17h8'],
+        moon: ['M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z'],
+        sun: ['M12 2v2', 'M12 20v2', 'm4.93-17.07-1.42 1.42', 'm-9.9 9.9-1.42 1.42', 'M2 12h2', 'M20 12h2', 'm4.93 4.93-1.42-1.42', 'm-9.9-9.9-1.42-1.42', 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z'],
+        zap: ['m13 2-3 8H4l7 12 3-9h6L13 2Z'],
+        scan: ['M4 9V5a1 1 0 0 1 1-1h4', 'M15 4h4a1 1 0 0 1 1 1v4', 'M20 15v4a1 1 0 0 1-1 1h-4', 'M9 20H5a1 1 0 0 1-1-1v-4', 'M8 10h8', 'M8 14h6'],
+        info: ['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z', 'M12 11v5', 'M12 8h.01'],
+        check: ['m5 12 4 4L19 6'],
+        alert: ['M12 3 2 21h20L12 3Z', 'M12 9v5', 'M12 18h.01'],
+        refresh: ['M20 11a8 8 0 0 0-14.5-4.5L3 9', 'M3 4v5h5', 'M4 13a8 8 0 0 0 14.5 4.5L21 15', 'M21 20v-5h-5'],
+        search: ['M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z', 'm21 21-4.35-4.35'],
+        pen: ['m14 4 6 6', 'M4 20l4.5-1 12-12a2.12 2.12 0 0 0-3-3l-12 12L4 20Z'],
+        layers: ['m12 2 9 5-9 5-9-5 9-5Z', 'm3 12 9 5 9-5', 'm3 17 9 5 9-5'],
+        quote: ['M8 10H4a1 1 0 0 0-1 1v7h6v-7H6c0-3 1-4 3-5', 'M19 10h-4a1 1 0 0 0-1 1v7h6v-7h-3c0-3 1-4 3-5'],
+        lock: ['M5 11h14v10H5z', 'M8 11V7a4 4 0 0 1 8 0v4'],
+        arrow: ['M19 12H5', 'm12 19-7-7 7-7'],
+        trash: ['M3 6h18', 'M8 6V4h8v2', 'M6 6l1 15h10l1-15', 'M10 10v7', 'M14 10v7'],
+        eye: ['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
+        chart: ['M4 20V12', 'M10 20V7', 'M16 20V4', 'M22 20H2']
+    };
+    function Icon(props) {
+        const paths = iconPaths[props.name];
+        return React.createElement("svg", { "aria-hidden": "true", className: props.className || '', width: props.size || 18, height: props.size || 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.65", strokeLinecap: "round", strokeLinejoin: "round" }, paths.map((d, idx) => React.createElement("path", { key: idx, d: d })));
+    }
+    const LANG_LABEL = { fa: 'فارسی', en: 'انگلیسی', mixed: 'ترکیبی', unknown: 'نامشخص' };
+    const CATEGORY_LABEL = {
+        cliche: 'عبارت‌های قالبی', transition: 'پیوندهای متنی', repetition: 'تکرار', structure: 'ساختار', 'self-reference': 'خودارجاعی', specificity: 'جزئیات و شواهد', rhetoric: 'الگوهای بلاغی', attribution: 'ارجاع‌های مبهم', formatting: 'قالب‌بندی', residue: 'ردپای فنی و مکالمه'
+    };
+    const SEVERITY_LABEL = { high: 'پررنگ', medium: 'متوسط', low: 'ضعیف' };
+    const LEVEL_LABEL = { insufficient: 'متن کوتاه', low: 'نشانه‌های محدود', medium: 'نیازمند بررسی', high: 'نشانه‌های متعدد' };
+    function IconButton(props) {
+        return React.createElement("button", { type: "button", title: props.title, className: 'small-button ' + (props.className || ''), onClick: props.onClick, disabled: props.disabled },
+            React.createElement(Icon, { name: props.icon, size: 16 }),
+            props.children);
+    }
+    function shortNumber(n) { return n.toLocaleString('fa-IR'); }
+    function textTokens(input) { return (input.match(/[\p{L}\p{N}]+(?:[\u200c'’-][\p{L}\p{N}]+)*/gu) || []).length; }
     class App extends React.Component {
         constructor(props) {
             super(props);
-            this.upload = null;
-            this.analyze = () => {
-                if (!this.state.value.trim()) {
-                    this.setState({ error: 'ابتدا متن موردنظر را وارد کنید.' });
-                    return;
+            this.fileInput = null;
+            this.editor = null;
+            this.loadPublishedModels = async () => {
+                const models = { fa: null, en: null };
+                for (const lang of ['fa', 'en']) {
+                    try {
+                        const response = await fetch('./models/' + lang + '.json', { cache: 'no-store' });
+                        if (!response.ok)
+                            continue;
+                        const model = await response.json();
+                        if (NevisEngine.isPublishedModel(model) && model.language === lang)
+                            models[lang] = model;
+                    }
+                    catch (err) {
+                        console.warn('مدل منتشرشده در دسترس نیست', lang, err);
+                    }
                 }
-                if (this.state.value.length > 80000) {
-                    this.setState({ error: 'برای تحلیل، حداکثر ۸۰ هزار نویسه وارد کنید.' });
-                    return;
-                }
-                const report = NevisEngine.analyze(this.state.value);
-                this.setState({ report, hasAnalyzed: true, error: '', busy: false, onnxScore: null });
-                const lang = report.language;
-                if ((lang === 'fa' || lang === 'en') && this.state.models[lang]) {
-                    const requested = this.state.value;
-                    NevisEngine.predictOnnx(requested, lang).then(score => {
-                        if (this.state.value === requested && score !== null)
-                            this.setState({ onnxScore: score });
-                    });
-                }
+                const count = Number(!!models.fa) + Number(!!models.en);
+                this.setState({ models, modelStatus: count ? `${count.toLocaleString('fa-IR')} مدل آماده تحلیل است` : 'مدل منشأ متن برای این زبان هنوز منتشر نشده است.' });
             };
-            this.fileChanged = (event) => {
+            this.setText = (value) => {
+                this.setState({ text: value.slice(0, 40000), isStale: true, activeId: null, message: '' });
+            };
+            this.analyzeNow = () => {
+                const report = NevisEngine.analyze(this.state.text);
+                this.setState({ report, isStale: false, activeId: null, message: '', tab: 'all' });
+            };
+            this.useSample = (kind) => {
+                const text = kind === 'template' ? TEMPLATE_SAMPLE : NATURAL_SAMPLE;
+                this.setState({ text, report: NevisEngine.analyze(text), activeId: null, tab: 'all', isStale: false, message: '' });
+            };
+            this.updateReference = (value) => {
+                this.setState({ referenceText: value.slice(0, 40000), referenceStale: true });
+            };
+            this.compareReference = () => {
+                const { referenceText, report, isStale } = this.state;
+                if (isStale) {
+                    this.setState({ message: 'ابتدا متن اصلی را دوباره تحلیل کنید.' });
+                    return;
+                }
+                const language = NevisEngine.analyze(referenceText).language;
+                this.setState({ referenceStyle: NevisEngine.getStyleProfile(referenceText, language), referenceStale: false, message: '' });
+            };
+            this.toggleTheme = () => {
+                const theme = this.state.theme === 'light' ? 'dark' : 'light';
+                this.applyTheme(theme);
+                try {
+                    localStorage.setItem('nevis-sanj-theme', theme);
+                }
+                catch (_error) { /* Private browsing may disallow storage. */ }
+                this.setState({ theme });
+            };
+            this.loadFile = (event) => {
                 const file = event.target.files && event.target.files[0];
                 if (!file)
                     return;
-                if (!/\.(txt|md)$/i.test(file.name) || file.size > 400000) {
-                    this.setState({ error: 'فقط فایل TXT یا MD با حجم حداکثر ۴۰۰ کیلوبایت مجاز است.' });
+                if (!/\.(txt|md|markdown)$/i.test(file.name) && !/^text\//i.test(file.type)) {
+                    this.setState({ message: 'فقط فایل متنی TXT یا Markdown قابل بارگذاری است.' });
+                    event.target.value = '';
+                    return;
+                }
+                if (file.size > 200000) {
+                    this.setState({ message: 'حجم فایل زیاد است. حداکثر ۲۰۰ کیلوبایت مجاز است.' });
+                    event.target.value = '';
                     return;
                 }
                 const reader = new FileReader();
-                reader.onload = () => this.setState({ value: String(reader.result || ''), report: null, hasAnalyzed: false, onnxScore: null, error: '' });
-                reader.onerror = () => this.setState({ error: 'خواندن فایل ممکن نشد.' });
-                reader.readAsText(file, 'utf-8');
+                reader.onload = () => {
+                    const source = String(reader.result || '').replace(/^\uFEFF/, '');
+                    const text = source.slice(0, 40000);
+                    this.setState({ text, report: NevisEngine.analyze(text), isStale: false, activeId: null, tab: 'all', message: source.length > 40000 ? 'فقط ۴۰ هزار نویسه اول فایل بررسی شد.' : `فایل «${file.name}» در مرورگر خوانده شد.` });
+                };
+                reader.onerror = () => this.setState({ message: 'خواندن فایل موفق نبود. دوباره تلاش کنید.' });
+                reader.readAsText(file, 'UTF-8');
                 event.target.value = '';
             };
-            this.exportReport = () => {
-                if (!this.state.report)
-                    return;
-                const report = this.state.report;
-                const lang = report.language === 'fa' || report.language === 'en' ? report.language : null;
-                const pred = lang ? NevisEngine.publishedPredict(this.state.value, this.state.models[lang]) : null;
-                const text = `نویس‌سنج | گزارش تحلیل\nتعداد واژه: ${report.wordCount}\nزبان: ${labels[report.language]}\n${pred && pred.score !== null ? 'امتیاز مدل: ' + pred.score + ' / 100' : 'نتیجه مدل: در دسترس نیست'}\nتوضیح: امتیاز طبقه‌بند اثبات منشأ متن نیست.\n\nشواهد متن:\n${report.findings.map(f => '- ' + f.title + ': ' + f.description).join('\n')}`;
-                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            this.paste = async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text)
+                        this.setText(text);
+                }
+                catch (_err) {
+                    this.setState({ message: 'اجازه خواندن کلیپ‌بورد صادر نشد؛ از Ctrl+V یا Cmd+V استفاده کنید.' });
+                    if (this.editor)
+                        this.editor.focus();
+                }
+            };
+            this.download = (type) => {
+                const { report } = this.state;
+                const { index: _internalLegacyIndex, ...exportReport } = report;
+                const content = type === 'json' ? JSON.stringify({
+                    application: 'NevisSanj', version: '2.5.0', disclaimer: 'Not an AI authorship probability',
+                    createdAt: new Date().toISOString(), report: exportReport, modelAssessment: NevisEngine.publishedPredict(report.text, this.state.models[report.language === 'fa' || report.language === 'en' ? report.language : 'fa'])
+                }, null, 2) : NevisEngine.createReadableReport(report);
+                const blob = new Blob([content], { type: type === 'json' ? 'application/json;charset=utf-8' : 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'nevis-sanj-report.txt';
+                a.download = `nevis-sanj-report.${type}`;
+                document.body.appendChild(a);
                 a.click();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 500);
             };
-            this.state = { value: '', report: null, busy: false, dark: false, models: { fa: null, en: null }, status: 'در حال بررسی مدل‌های منتشرشده...', error: '', hasAnalyzed: false, onnxScore: null };
-        }
-        componentDidMount() { this.loadModels(); }
-        async loadModels() {
-            const fetched = { fa: null, en: null };
-            for (const lang of ['fa', 'en']) {
+            this.copySummary = async () => {
                 try {
-                    const res = await fetch('./models/' + lang + '.json', { cache: 'no-store' });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (NevisEngine.isPublishedModel(data) && data.language === lang)
-                            fetched[lang] = data;
-                    }
+                    await navigator.clipboard.writeText(NevisEngine.createReadableReport(this.state.report));
+                    this.setState({ message: 'گزارش در کلیپ‌بورد کپی شد.' });
                 }
-                catch (_) { /* No model is a legitimate and visible state; never manufacture a percentage. */ }
+                catch (_err) {
+                    this.setState({ message: 'کپی خودکار ممکن نیست؛ از گزینه دانلود گزارش استفاده کنید.' });
+                }
+            };
+            this.setActive = (id) => {
+                this.setState({ activeId: id });
+                const el = document.getElementById('evidence-preview');
+                if (el)
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+            let theme = 'light';
+            try {
+                if (localStorage.getItem('nevis-sanj-theme') === 'dark')
+                    theme = 'dark';
             }
-            const count = Number(!!fetched.fa) + Number(!!fetched.en);
-            this.setState({ models: fetched, status: count ? `${count.toLocaleString('fa-IR')} مدل فعال، آماده بررسی محلی` : 'هنوز مدل آموزش‌دیده‌ای منتشر نشده؛ شواهد نگارشی قابل بررسی‌اند.' });
+            catch (_) { /* Restricted browser storage. */ }
+            const text = TEMPLATE_SAMPLE;
+            const models = { fa: null, en: null };
+            this.state = { text, report: NevisEngine.analyze(text), activeId: null, theme, message: '', tab: 'all', isStale: false,
+                referenceText: '', referenceStyle: null, referenceStale: false, models, modelStatus: 'در حال بررسی مدل‌ها...' };
+            this.applyTheme(theme);
+        }
+        componentDidMount() { this.loadPublishedModels(); }
+        downloadContent(content, filename, mime) {
+            const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 500);
+        }
+        applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); }
+        renderAnnotatedText() {
+            const { report, activeId } = this.state;
+            const spans = [];
+            report.findings.forEach(finding => finding.hits.forEach(hit => {
+                if (hit.end > hit.start)
+                    spans.push({ start: hit.start, end: hit.end, finding });
+            }));
+            if (spans.length === 0)
+                return React.createElement("span", null, report.text || 'متنی برای نمایش وجود ندارد.');
+            const points = Array.from(new Set([0, report.text.length, ...spans.flatMap(s => [s.start, s.end])])).sort((a, b) => a - b);
+            const segments = [];
+            let previousId = '';
+            for (let i = 0; i < points.length - 1; i++) {
+                const start = points[i];
+                const end = points[i + 1];
+                if (start === end)
+                    continue;
+                const active = spans.filter(s => s.start <= start && s.end >= end);
+                active.sort((a, b) => (a.finding.id === activeId ? -1 : 0) - (b.finding.id === activeId ? -1 : 0) || (a.finding.severity === 'high' ? -1 : 0) - (b.finding.severity === 'high' ? -1 : 0));
+                const finding = active[0] && active[0].finding;
+                const content = report.text.slice(start, end);
+                const id = finding ? finding.id : '';
+                if (!finding)
+                    segments.push(React.createElement("span", { key: i }, content));
+                else
+                    segments.push(React.createElement("mark", { title: `${finding.title} — برای مشاهده انتخاب کنید`, tabIndex: 0, role: "button", key: i, onClick: () => this.setActive(finding.id), onKeyDown: (e) => { if (e.key === 'Enter')
+                            this.setActive(finding.id); }, className: `marker ${finding.severity} ${activeId === id ? 'selected' : ''} ${previousId === id ? 'continuous' : ''}` }, content));
+                previousId = id;
+            }
+            return segments;
         }
         render() {
-            const { value, report, models, status, error, onnxScore } = this.state;
-            const language = report?.language;
-            const model = (language === 'fa' || language === 'en') ? models[language] : null;
-            const prediction = report && (language === 'fa' || language === 'en') ? NevisEngine.publishedPredict(value, model) : null;
-            const score = prediction?.score === null ? null : onnxScore ?? prediction?.score ?? null;
-            const finalVerdict = score === null ? 'unavailable' : score >= 65 ? 'ai' : score <= 35 ? 'human' : 'uncertain';
-            const verdict = finalVerdict === 'ai' ? 'شواهد مدل به نفع تولید ماشینی' : finalVerdict === 'human' ? 'شواهد مدل به نفع نگارش انسانی' : finalVerdict === 'uncertain' ? 'نتیجه مدل نامشخص' : 'مدل قابل استفاده نیست';
-            return React.createElement("div", { className: "public-shell" },
-                React.createElement("header", { className: "pub-header" },
-                    React.createElement("div", { className: "brand" },
-                        React.createElement("div", { className: "logo-mark" }, "\u0646"),
-                        React.createElement("div", null,
-                            React.createElement("strong", null, "\u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C"),
-                            React.createElement("small", null, "\u062A\u062D\u0644\u06CC\u0644 \u0647\u0648\u0634\u0645\u0646\u062F \u0646\u0648\u0634\u062A\u0627\u0631"))),
-                    React.createElement("div", { className: "header-right" },
-                        React.createElement("span", { className: "privacy" },
-                            React.createElement("span", { className: "live-dot" }),
-                            "\u067E\u0631\u062F\u0627\u0632\u0634 \u0645\u062A\u0646 \u0631\u0648\u06CC \u062F\u0633\u062A\u06AF\u0627\u0647 \u0634\u0645\u0627"))),
-                React.createElement("main", { className: "pub-main" },
+            const { text, report, activeId, theme, message, tab, isStale, referenceText, referenceStyle, referenceStale, models, modelStatus } = this.state;
+            const comparison = referenceStyle && !referenceStale && !isStale ? NevisEngine.compareStyleProfiles(report.style, referenceStyle) : null;
+            const findings = report.findings.filter(f => tab === 'all' || f.severity !== 'low');
+            const active = report.findings.find(f => f.id === activeId) || null;
+            const hasText = text.trim().length > 0;
+            const localModel = report.language === 'fa' || report.language === 'en' ? models[report.language] : null;
+            const modelPrediction = NevisEngine.publishedPredict(report.text, localModel);
+            const prediction = { available: modelPrediction.score !== null, score: modelPrediction.score,
+                verdict: modelPrediction.verdict, explanation: modelPrediction.reason };
+            return React.createElement("div", { className: "app-root" },
+                React.createElement("header", { className: "header" },
+                    React.createElement("div", { className: "shell header-inner" },
+                        React.createElement("a", { className: "brand", href: "#top", "aria-label": "\u0635\u0641\u062D\u0647 \u0627\u0635\u0644\u06CC \u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C" },
+                            React.createElement("span", { className: "brand-mark" },
+                                React.createElement(Icon, { name: "scan", size: 23 })),
+                            React.createElement("span", null,
+                                React.createElement("strong", null, "\u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C"),
+                                React.createElement("small", null, "\u062A\u062D\u0644\u06CC\u0644 \u0647\u0648\u0634\u0645\u0646\u062F \u0633\u0628\u06A9 \u0646\u0648\u0634\u062A\u0627\u0631"))),
+                        React.createElement("nav", { className: "nav-links", "aria-label": "\u067E\u06CC\u0648\u0646\u062F\u0647\u0627\u06CC \u0635\u0641\u062D\u0647" },
+                            React.createElement("a", { href: "#workspace", className: "nav-current" }, "\u0622\u0632\u0645\u0627\u06CC\u0634 \u0645\u062A\u0646"),
+                            React.createElement("a", { href: "#method" }, "\u0631\u0648\u0634 \u062A\u062D\u0644\u06CC\u0644"),
+                            React.createElement("a", { href: "#limitations" }, "\u0645\u062D\u062F\u0648\u062F\u06CC\u062A\u200C\u0647\u0627")),
+                        React.createElement("div", { className: "header-actions" },
+                            React.createElement("span", { className: "offline-indicator" },
+                                React.createElement("span", null),
+                                " \u06A9\u0627\u0645\u0644\u0627 \u0645\u062D\u0644\u06CC"),
+                            React.createElement("button", { type: "button", className: "theme-button", onClick: this.toggleTheme, title: theme === 'light' ? 'فعال‌کردن حالت تاریک' : 'فعال‌کردن حالت روشن', "aria-label": "\u062A\u063A\u06CC\u06CC\u0631 \u062A\u0645" },
+                                React.createElement(Icon, { name: theme === 'light' ? 'moon' : 'sun', size: 19 }))))),
+                React.createElement("main", { id: "top", className: "shell" },
                     React.createElement("section", { className: "hero" },
-                        React.createElement("div", { className: "eyebrow" }, "NEVIS SANJ \u00B7 WRITING INTELLIGENCE"),
-                        React.createElement("h1", null, "\u0645\u062A\u0646 \u0631\u0627 \u0639\u0645\u06CC\u0642\u200C\u062A\u0631 \u0628\u0631\u0631\u0633\u06CC \u06A9\u0646\u06CC\u062F."),
-                        React.createElement("p", null, "\u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627\u06CC \u0646\u0648\u0634\u062A\u0627\u0631\u06CC \u0631\u0627 \u06A9\u0634\u0641 \u06A9\u0646\u06CC\u062F \u0648 \u062F\u0631 \u0635\u0648\u0631\u062A \u0648\u062C\u0648\u062F \u0645\u062F\u0644 \u0622\u0645\u0648\u0632\u0634\u200C\u062F\u06CC\u062F\u0647\u060C \u0627\u0631\u0632\u06CC\u0627\u0628\u06CC \u0645\u0633\u062A\u0642\u0644 \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0631\u0627 \u0628\u0628\u06CC\u0646\u06CC\u062F.")),
-                    React.createElement("section", { className: "workspace" },
-                        React.createElement("div", { className: "panel input-panel" },
-                            React.createElement("div", { className: "panel-head" },
-                                React.createElement("div", null,
-                                    React.createElement("h2", null, "\u0645\u062A\u0646 \u0628\u0631\u0627\u06CC \u062A\u062D\u0644\u06CC\u0644"),
-                                    React.createElement("p", null, "\u0645\u062A\u0646 \u0641\u0627\u0631\u0633\u06CC \u06CC\u0627 \u0627\u0646\u06AF\u0644\u06CC\u0633\u06CC \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F.")),
-                                React.createElement("span", { className: "step" }, "\u06F0\u06F1 / \u0648\u0631\u0648\u062F\u06CC")),
-                            React.createElement("textarea", { className: "pub-editor", dir: "auto", value: value, onChange: (e) => this.setState({ value: e.target.value, report: null, hasAnalyzed: false, onnxScore: null, error: '' }), placeholder: "\u0645\u062A\u0646 \u062E\u0648\u062F \u0631\u0627 \u0627\u06CC\u0646\u062C\u0627 \u0628\u0646\u0648\u06CC\u0633\u06CC\u062F \u06CC\u0627 \u062C\u0627\u06CC\u200C\u06AF\u0630\u0627\u0631\u06CC \u06A9\u0646\u06CC\u062F...", maxLength: 80000 }),
-                            React.createElement("div", { className: "editor-footer" },
+                        React.createElement("div", { className: "hero-content" },
+                            React.createElement("div", { className: "hero-kicker" },
+                                React.createElement("span", { className: "kicker-dot" }),
+                                " \u062A\u062D\u0644\u06CC\u0644 \u0686\u0646\u062F\u0644\u0627\u06CC\u0647 \u0646\u0648\u0634\u062A\u0627\u0631 ",
+                                React.createElement("span", { className: "kicker-sep" }, "/"),
+                                " WRITING FORENSICS"),
+                            React.createElement("h1", null,
+                                "\u0631\u062F\u067E\u0627\u06CC ",
+                                React.createElement("span", null, "\u0647\u0648\u0634 \u0645\u0635\u0646\u0648\u0639\u06CC"),
+                                " \u0631\u0627",
+                                React.createElement("br", { className: "desktop-break" }),
+                                " \u062F\u0631 \u0646\u0648\u0634\u062A\u0627\u0631 \u0628\u0631\u0631\u0633\u06CC \u06A9\u0646."),
+                            React.createElement("p", null, "\u0627\u0644\u06AF\u0648\u0647\u0627\u06CC \u0632\u0628\u0627\u0646\u06CC\u060C \u0631\u06CC\u062A\u0645 \u062C\u0645\u0644\u0627\u062A \u0648 \u0648\u06CC\u0698\u06AF\u06CC\u200C\u0647\u0627\u06CC \u0622\u0645\u0627\u0631\u06CC \u0646\u0648\u0634\u062A\u0627\u0631 \u0631\u0627 \u062F\u0631 \u06CC\u06A9 \u06AF\u0632\u0627\u0631\u0634 \u0631\u0648\u0634\u0646 \u0648 \u06A9\u0627\u0631\u0628\u0631\u062F\u06CC \u0628\u0631\u0631\u0633\u06CC \u06A9\u0646\u06CC\u062F."),
+                            React.createElement("div", { className: "hero-tags" },
                                 React.createElement("span", null,
-                                    (value.match(/[\p{L}\p{N}]+/gu) || []).length.toLocaleString('fa-IR'),
-                                    " \u0648\u0627\u0698\u0647 \u00B7 ",
-                                    value.length.toLocaleString('fa-IR'),
-                                    " \u0646\u0648\u06CC\u0633\u0647"),
-                                React.createElement("div", { className: "inline-actions" },
-                                    React.createElement("input", { ref: (el) => this.upload = el, type: "file", accept: ".txt,.md,text/plain,text/markdown", onChange: this.fileChanged, style: { display: 'none' } }),
-                                    React.createElement("button", { className: "text-button", onClick: () => this.upload?.click() }, "\u0628\u0627\u0631\u06AF\u0630\u0627\u0631\u06CC \u0641\u0627\u06CC\u0644"),
-                                    React.createElement("button", { className: "text-button", onClick: () => this.setState({ value: sample, report: null, hasAnalyzed: false, onnxScore: null, error: '' }) }, "\u0645\u062A\u0646 \u0646\u0645\u0648\u0646\u0647"),
-                                    React.createElement("button", { className: "text-button", onClick: () => this.setState({ value: '', report: null, hasAnalyzed: false, onnxScore: null, error: '' }) }, "\u067E\u0627\u06A9\u200C\u06A9\u0631\u062F\u0646"))),
-                            error ? React.createElement("p", { className: "form-error", role: "alert" }, error) : null,
-                            React.createElement("button", { className: "primary-button", onClick: this.analyze, disabled: !value.trim() },
-                                "\u0628\u0631\u0631\u0633\u06CC \u0645\u062A\u0646 ",
-                                React.createElement("span", null, "\u2190"))),
-                        React.createElement("div", { className: "panel result-panel" },
-                            React.createElement("div", { className: "panel-head" },
+                                    React.createElement(Icon, { name: "shield", size: 15 }),
+                                    " \u062D\u0631\u06CC\u0645 \u062E\u0635\u0648\u0635\u06CC \u067E\u06CC\u0634\u200C\u0641\u0631\u0636"),
+                                React.createElement("span", null,
+                                    React.createElement(Icon, { name: "layers", size: 15 }),
+                                    " \u0641\u0627\u0631\u0633\u06CC \u0648 \u0627\u0646\u06AF\u0644\u06CC\u0633\u06CC"),
+                                React.createElement("span", null,
+                                    React.createElement(Icon, { name: "zap", size: 15 }),
+                                    " \u0628\u062F\u0648\u0646 API"))),
+                        React.createElement("div", { className: "hero-decoration", "aria-hidden": "true" },
+                            React.createElement("div", { className: "orb orb-outer" }),
+                            React.createElement("div", { className: "orb orb-mid" }),
+                            React.createElement("div", { className: "orb orb-inner" },
+                                React.createElement(Icon, { name: "scan", size: 40 })),
+                            React.createElement("span", { className: "orbit-dot dot-one" }),
+                            React.createElement("span", { className: "orbit-dot dot-two" }),
+                            React.createElement("span", { className: "orbit-line line-one" }),
+                            React.createElement("span", { className: "orbit-line line-two" }))),
+                    React.createElement("div", { className: "section-heading", id: "workspace" },
+                        React.createElement("div", null,
+                            React.createElement("span", { className: "section-number" }, "01 /"),
+                            React.createElement("h2", null, "\u0641\u0636\u0627\u06CC \u062A\u062D\u0644\u06CC\u0644 \u0645\u062A\u0646"),
+                            React.createElement("p", null, "\u0645\u062A\u0646 \u0645\u0648\u0631\u062F \u0646\u0638\u0631 \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F \u06CC\u0627 \u0627\u0632 \u0646\u0645\u0648\u0646\u0647\u200C\u0647\u0627\u06CC \u0622\u0645\u0627\u062F\u0647 \u0627\u0633\u062A\u0641\u0627\u062F\u0647 \u06A9\u0646\u06CC\u062F.")),
+                        React.createElement("div", { className: "section-hint" },
+                            React.createElement(Icon, { name: "lock", size: 16 }),
+                            " \u0645\u062A\u0646 \u062F\u0631 \u0645\u0631\u0648\u0631\u06AF\u0631 \u0634\u0645\u0627 \u067E\u0631\u062F\u0627\u0632\u0634 \u0645\u06CC\u200C\u0634\u0648\u062F")),
+                    React.createElement("section", { className: "workspace", "aria-label": "\u0641\u0636\u0627\u06CC \u062A\u062D\u0644\u06CC\u0644" },
+                        React.createElement("div", { className: "panel editor-panel" },
+                            React.createElement("div", { className: "panel-header" },
+                                React.createElement("div", { className: "panel-title" },
+                                    React.createElement("span", { className: "panel-icon" },
+                                        React.createElement(Icon, { name: "pen", size: 18 })),
+                                    React.createElement("div", null,
+                                        React.createElement("h3", null, "\u0645\u062A\u0646 \u0648\u0631\u0648\u062F\u06CC"),
+                                        React.createElement("span", null, "\u0645\u0642\u0627\u0644\u0647\u060C \u067E\u0633\u062A \u06CC\u0627 \u0647\u0631 \u0646\u0648\u0639 \u0646\u0648\u0634\u062A\u0647 \u0631\u0627 \u0628\u0631\u0627\u06CC \u062A\u062D\u0644\u06CC\u0644 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F."))),
+                                React.createElement("span", { className: "tiny-tag" }, "\u062A\u062D\u0644\u06CC\u0644 \u0686\u0646\u062F\u0644\u0627\u06CC\u0647 \u00B7 \u062A\u0627 \u06F4\u06F0 \u0647\u0632\u0627\u0631 \u0646\u0648\u06CC\u0633\u0647")),
+                            React.createElement("div", { className: "editor-tools" },
+                                React.createElement("div", { className: "tool-group" },
+                                    React.createElement(IconButton, { icon: "upload", onClick: () => this.fileInput && this.fileInput.click() }, "\u0628\u0627\u0631\u06AF\u0630\u0627\u0631\u06CC \u0641\u0627\u06CC\u0644"),
+                                    React.createElement(IconButton, { icon: "clipboard", onClick: this.paste }, "\u0686\u0633\u0628\u0627\u0646\u062F\u0646 \u0645\u062A\u0646")),
+                                React.createElement(IconButton, { icon: "trash", onClick: () => this.setText(''), disabled: !hasText }, "\u067E\u0627\u06A9 \u06A9\u0631\u062F\u0646")),
+                            React.createElement("input", { ref: (el) => { this.fileInput = el; }, type: "file", accept: ".txt,.md,.markdown,text/plain,text/markdown", onChange: this.loadFile, hidden: true }),
+                            React.createElement("div", { className: "textarea-wrap" },
+                                React.createElement("textarea", { ref: (el) => { this.editor = el; }, spellCheck: false, dir: "auto", placeholder: "\u0645\u062A\u0646 \u0641\u0627\u0631\u0633\u06CC \u06CC\u0627 \u0627\u0646\u06AF\u0644\u06CC\u0633\u06CC \u0645\u0648\u0631\u062F \u0646\u0638\u0631 \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F...", value: text, maxLength: 40000, onChange: (e) => this.setText(e.target.value), "aria-label": "\u0645\u062A\u0646 \u0648\u0631\u0648\u062F\u06CC \u0628\u0631\u0627\u06CC \u062A\u062D\u0644\u06CC\u0644" })),
+                            React.createElement("div", { className: "text-toolbar" },
+                                React.createElement("div", { className: "text-metrics" },
+                                    React.createElement("span", null,
+                                        React.createElement("strong", null, shortNumber(textTokens(text))),
+                                        " \u0648\u0627\u0698\u0647"),
+                                    React.createElement("span", null,
+                                        React.createElement("strong", null, shortNumber(text.length)),
+                                        " \u0646\u0648\u06CC\u0633\u0647")),
+                                React.createElement("span", { className: "editor-hint" }, "TXT / MD / \u0645\u062A\u0646 \u0633\u0627\u062F\u0647")),
+                            React.createElement("div", { className: "sample-row" },
+                                React.createElement("span", null, "\u0622\u0632\u0645\u0627\u06CC\u0634 \u0633\u0631\u06CC\u0639:"),
+                                React.createElement("button", { onClick: () => this.useSample('template'), type: "button", className: "sample-pill" },
+                                    React.createElement(Icon, { name: "file", size: 14 }),
+                                    " \u0645\u062A\u0646 \u0642\u0627\u0644\u0628\u06CC"),
+                                React.createElement("button", { onClick: () => this.useSample('natural'), type: "button", className: "sample-pill" },
+                                    React.createElement(Icon, { name: "quote", size: 14 }),
+                                    " \u0645\u062A\u0646 \u0631\u0648\u0627\u06CC\u06CC")),
+                            React.createElement("div", { className: "editor-bottom" },
+                                React.createElement("div", { className: "small-note" },
+                                    React.createElement(Icon, { name: "info", size: 16 }),
+                                    " \u0628\u0631\u0627\u06CC \u067E\u0631\u0648\u0641\u0627\u06CC\u0644 \u0622\u0645\u0627\u0631\u06CC \u0628\u0647\u062A\u0631\u060C \u062D\u062F\u0627\u0642\u0644 \u06F1\u06F5\u06F0 \u0648\u0627\u0698\u0647 \u0648\u0627\u0631\u062F \u06A9\u0646."),
+                                React.createElement("button", { type: "button", className: "primary-button", disabled: !hasText || (!isStale && report.text === text), onClick: this.analyzeNow },
+                                    React.createElement(Icon, { name: isStale ? 'scan' : 'check', size: 19 }),
+                                    isStale ? 'تحلیل متن' : 'تحلیل انجام شد',
+                                    React.createElement(Icon, { name: "arrow", size: 18 }))),
+                            message && React.createElement("div", { className: "inline-toast", role: "status" },
+                                React.createElement(Icon, { name: "info", size: 16 }),
+                                message)),
+                        React.createElement("aside", { className: `panel results-panel ${isStale ? 'is-stale' : ''}`, "aria-label": "\u062E\u0644\u0627\u0635\u0647 \u0646\u062A\u0627\u06CC\u062C" },
+                            React.createElement("div", { className: "panel-header" },
+                                React.createElement("div", { className: "panel-title" },
+                                    React.createElement("span", { className: "panel-icon" },
+                                        React.createElement(Icon, { name: "chart", size: 18 })),
+                                    React.createElement("div", null,
+                                        React.createElement("h3", null, "\u062E\u0644\u0627\u0635\u0647 \u062A\u062D\u0644\u06CC\u0644"),
+                                        React.createElement("span", null, "\u0628\u0631\u0631\u0633\u06CC \u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627 \u0648 \u0648\u06CC\u0698\u06AF\u06CC\u200C\u0647\u0627\u06CC \u0645\u062A\u0646"))),
+                                React.createElement("span", { className: "report-state" },
+                                    React.createElement("span", null),
+                                    isStale ? 'نیازمند تحلیل مجدد' : 'به‌روز')),
+                            React.createElement("div", { className: "local-verdict", "aria-live": "polite" },
+                                React.createElement("div", { className: "local-verdict-label" },
+                                    React.createElement(Icon, { name: "scan", size: 18 }),
+                                    React.createElement("strong", null, "\u0627\u0631\u0632\u06CC\u0627\u0628\u06CC \u0645\u0646\u0634\u0623 \u0628\u0627 \u0645\u062F\u0644 \u0645\u062D\u0644\u06CC")),
+                                prediction.available ? React.createElement("div", { className: "prediction-available" },
+                                    React.createElement("div", { className: "local-score" },
+                                        React.createElement("strong", null,
+                                            shortNumber(prediction.score || 0),
+                                            React.createElement("small", null, " / \u06F1\u06F0\u06F0")),
+                                        React.createElement("span", null, "\u0627\u0645\u062A\u06CC\u0627\u0632 \u0645\u062F\u0644 \u0622\u0645\u0648\u0632\u0634\u200C\u062F\u06CC\u062F\u0647\u060C \u0646\u0647 \u0627\u062D\u062A\u0645\u0627\u0644 \u0642\u0637\u0639\u06CC")),
+                                    React.createElement("div", { className: "local-bar" },
+                                        React.createElement("span", { style: { width: `${prediction.score}%` } })),
+                                    React.createElement("div", { className: "local-status" }, prediction.verdict === 'ai' ? 'نشانه به نفع متن ماشینی' : prediction.verdict === 'human' ? 'نشانه به نفع متن انسانی' : 'نتیجه نامشخص'),
+                                    React.createElement("p", null, prediction.explanation),
+                                    localModel && localModel.language === 'fa' && (localModel.metrics.test_human || 0) < 30 && React.createElement("p", { role: "status" },
+                                        "\u0647\u0634\u062F\u0627\u0631: \u0645\u062F\u0644 \u0641\u0627\u0631\u0633\u06CC \u0641\u0639\u0644\u06CC \u0641\u0642\u0637 \u0631\u0648\u06CC ",
+                                        localModel.metrics.test_human || 0,
+                                        " \u0645\u062A\u0646 \u0627\u0646\u0633\u0627\u0646\u06CC \u0622\u0632\u0645\u0648\u062F\u0647 \u0634\u062F\u0647\u061B \u0627\u0645\u062A\u06CC\u0627\u0632 \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0647\u0646\u0648\u0632 \u0627\u0639\u062A\u0628\u0627\u0631 \u06A9\u0627\u0641\u06CC \u0628\u0631\u0627\u06CC \u0642\u0636\u0627\u0648\u062A \u0646\u062F\u0627\u0631\u062F."),
+                                    localModel && React.createElement("p", null,
+                                        "\u0622\u0632\u0645\u0648\u0646 \u062F\u0627\u062E\u0644\u06CC: ",
+                                        Math.round(localModel.metrics.accuracy * 100).toLocaleString('fa-IR'),
+                                        "\u066A \u0635\u062D\u062A \u0631\u0648\u06CC ",
+                                        localModel.metrics.test_count.toLocaleString('fa-IR'),
+                                        " \u0646\u0645\u0648\u0646\u0647. \u0627\u06CC\u0646 \u0639\u062F\u062F \u062A\u0636\u0645\u06CC\u0646 \u062F\u0642\u062A \u0639\u0645\u0648\u0645\u06CC \u0646\u06CC\u0633\u062A.")) : React.createElement("div", { className: "prediction-unavailable" },
+                                    React.createElement("div", { className: "model-empty" },
+                                        React.createElement(Icon, { name: "info", size: 20 }),
+                                        " \u0646\u062A\u06CC\u062C\u0647 \u0645\u0646\u0634\u0623: \u0646\u0627\u0645\u0634\u062E\u0635"),
+                                    React.createElement("p", null, prediction.explanation),
+                                    React.createElement("span", { className: "local-link" }, "\u0645\u062F\u0644\u200C\u0647\u0627\u06CC \u0627\u0631\u0632\u06CC\u0627\u0628\u06CC \u0628\u0647\u200C\u0635\u0648\u0631\u062A \u0645\u0633\u062A\u0642\u0644 \u0648 \u062E\u0627\u0631\u062C \u0627\u0632 \u0633\u0627\u06CC\u062A \u0622\u0645\u0648\u0632\u0634 \u0645\u06CC\u200C\u0628\u06CC\u0646\u0646\u062F.")),
+                                React.createElement("div", { className: "signal-count" },
+                                    React.createElement("span", null, "\u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627\u06CC \u0642\u0627\u0628\u0644 \u0645\u0634\u0627\u0647\u062F\u0647"),
+                                    React.createElement("b", null,
+                                        shortNumber(report.findings.length),
+                                        " \u062F\u0633\u062A\u0647 / ",
+                                        shortNumber(report.totalHighlights),
+                                        " \u0645\u0648\u0631\u062F"),
+                                    React.createElement("small", null, "\u0627\u06CC\u0646 \u0634\u0645\u0627\u0631\u0634 \u0628\u0647\u200C\u062A\u0646\u0647\u0627\u06CC\u06CC \u062F\u0631\u0628\u0627\u0631\u0647 \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0642\u0636\u0627\u0648\u062A \u0646\u0645\u06CC\u200C\u06A9\u0646\u062F."))),
+                            React.createElement("div", { className: "metric-grid" },
+                                React.createElement("div", { className: "metric" },
+                                    React.createElement("div", null,
+                                        React.createElement(Icon, { name: "search", size: 16 }),
+                                        " \u062F\u0633\u062A\u0647 \u06CC\u0627\u0641\u062A\u0647"),
+                                    React.createElement("strong", null, shortNumber(report.findings.length))),
+                                React.createElement("div", { className: "metric" },
+                                    React.createElement("div", null,
+                                        React.createElement(Icon, { name: "eye", size: 16 }),
+                                        " \u0645\u0648\u0627\u0631\u062F \u0639\u0644\u0627\u0645\u062A\u200C\u06AF\u0630\u0627\u0631\u06CC"),
+                                    React.createElement("strong", null, shortNumber(report.totalHighlights))),
+                                React.createElement("div", { className: "metric" },
+                                    React.createElement("div", null,
+                                        React.createElement(Icon, { name: "layers", size: 16 }),
+                                        " \u067E\u0627\u0631\u0627\u06AF\u0631\u0627\u0641"),
+                                    React.createElement("strong", null, shortNumber(report.paragraphCount))),
+                                React.createElement("div", { className: "metric" },
+                                    React.createElement("div", null,
+                                        React.createElement(Icon, { name: "file", size: 16 }),
+                                        " \u0632\u0628\u0627\u0646"),
+                                    React.createElement("strong", { className: "metric-language" }, LANG_LABEL[report.language]))),
+                            React.createElement("div", { className: "interpretation" },
+                                React.createElement("div", { className: "interpretation-heading" },
+                                    React.createElement(Icon, { name: "info", size: 18 }),
+                                    React.createElement("strong", null, "\u0628\u0631\u062F\u0627\u0634\u062A \u062F\u0631\u0633\u062A \u0627\u0632 \u0646\u062A\u06CC\u062C\u0647")),
+                                React.createElement("p", null, report.note)),
+                            React.createElement("div", { className: "export-area" },
+                                React.createElement("span", null, "\u06AF\u0632\u0627\u0631\u0634 \u0642\u0627\u0628\u0644 \u0627\u0633\u062A\u0641\u0627\u062F\u0647"),
+                                React.createElement("div", { className: "export-buttons" },
+                                    React.createElement("button", { type: "button", onClick: () => this.download('txt'), disabled: isStale || !hasText },
+                                        React.createElement(Icon, { name: "download", size: 17 }),
+                                        " \u06AF\u0632\u0627\u0631\u0634 TXT"),
+                                    React.createElement("button", { type: "button", onClick: () => this.download('json'), disabled: isStale || !hasText },
+                                        React.createElement(Icon, { name: "download", size: 17 }),
+                                        " JSON"),
+                                    React.createElement("button", { type: "button", onClick: this.copySummary, disabled: isStale || !hasText, "aria-label": "\u06A9\u067E\u06CC \u06AF\u0632\u0627\u0631\u0634", title: "\u06A9\u067E\u06CC \u06AF\u0632\u0627\u0631\u0634" },
+                                        React.createElement(Icon, { name: "clipboard", size: 17 })))))),
+                    React.createElement("section", { className: "findings-section", "aria-label": "\u06CC\u0627\u0641\u062A\u0647\u200C\u0647\u0627" },
+                        React.createElement("div", { className: "section-heading compact" },
+                            React.createElement("div", null,
+                                React.createElement("span", { className: "section-number" }, "02 /"),
+                                React.createElement("h2", null, "\u0631\u062F\u067E\u0627\u0647\u0627\u06CC \u0642\u0627\u0628\u0644 \u0628\u0631\u0631\u0633\u06CC"),
+                                React.createElement("p", null, "\u0647\u0631 \u06CC\u0627\u0641\u062A\u0647 \u0647\u0645\u0631\u0627\u0647 \u0628\u0627 \u0634\u0627\u0647\u062F \u0645\u062A\u0646\u06CC\u060C \u062A\u0648\u0636\u06CC\u062D \u0648 \u0645\u062D\u062F\u0648\u062F\u06CC\u062A \u062A\u0641\u0633\u06CC\u0631 \u0646\u0645\u0627\u06CC\u0634 \u062F\u0627\u062F\u0647 \u0645\u06CC\u200C\u0634\u0648\u062F.")),
+                            React.createElement("div", { className: "tabs" },
+                                React.createElement("button", { type: "button", className: tab === 'all' ? 'active' : '', onClick: () => this.setState({ tab: 'all' }) },
+                                    "\u0647\u0645\u0647 \u06CC\u0627\u0641\u062A\u0647\u200C\u0647\u0627 ",
+                                    React.createElement("span", null, shortNumber(report.findings.length))),
+                                React.createElement("button", { type: "button", className: tab === 'notable' ? 'active' : '', onClick: () => this.setState({ tab: 'notable' }) },
+                                    "\u0645\u0647\u0645\u200C\u062A\u0631\u0647\u0627 ",
+                                    React.createElement("span", null, shortNumber(report.findings.filter(f => f.severity !== 'low').length))))),
+                        React.createElement("div", { className: "evidence-layout" },
+                            React.createElement("div", { className: "findings-list" }, findings.length ? findings.map((f, i) => React.createElement("article", { className: `finding-card ${activeId === f.id ? 'active' : ''}`, key: f.id },
+                                React.createElement("div", { className: "finding-top" },
+                                    React.createElement("div", { className: "finding-index" }, String(i + 1).padStart(2, '0')),
+                                    React.createElement("div", { className: "finding-head" },
+                                        React.createElement("div", { className: "finding-meta" },
+                                            React.createElement("span", null, CATEGORY_LABEL[f.category]),
+                                            React.createElement("span", { className: "meta-separator" }),
+                                            React.createElement("span", null,
+                                                shortNumber(f.hits.length),
+                                                " \u0646\u0645\u0648\u0646\u0647")),
+                                        React.createElement("h3", null, f.title)),
+                                    React.createElement("span", { className: `severity ${f.severity}` },
+                                        React.createElement("span", null),
+                                        SEVERITY_LABEL[f.severity])),
+                                React.createElement("p", null, f.description),
+                                React.createElement("div", { className: "quote-list" }, f.hits.slice(0, 2).map((hit, ix) => React.createElement("span", { className: "quote-chip", key: ix },
+                                    "\u00AB",
+                                    hit.text.replace(/\n/g, ' ').slice(0, 75),
+                                    hit.text.length > 75 ? '…' : '',
+                                    "\u00BB"))),
+                                React.createElement("div", { className: "finding-footer" },
+                                    React.createElement("span", null,
+                                        React.createElement(Icon, { name: "info", size: 15 }),
+                                        f.caveat),
+                                    React.createElement("div", { className: "finding-actions" },
+                                        React.createElement("button", { type: "button", onClick: () => this.setActive(f.id) },
+                                            "\u062F\u06CC\u062F\u0646 \u062F\u0631 \u0645\u062A\u0646 ",
+                                            React.createElement(Icon, { name: "arrow", size: 16 })))))) : React.createElement("div", { className: "empty-finding" },
                                 React.createElement("div", null,
-                                    React.createElement("h2", null, "\u0646\u062A\u06CC\u062C\u0647 \u0628\u0631\u0631\u0633\u06CC"),
-                                    React.createElement("p", null, "\u062E\u0631\u0648\u062C\u06CC \u0645\u0633\u062A\u0642\u0644 \u0648 \u0634\u0641\u0627\u0641 \u062A\u062D\u0644\u06CC\u0644")),
-                                React.createElement("span", { className: "step" }, "\u06F0\u06F2 / \u0646\u062A\u06CC\u062C\u0647")),
-                            !report ? React.createElement("div", { className: "empty-result" },
-                                React.createElement("div", { className: "empty-glyph" }, "\u25CE"),
-                                React.createElement("h3", null, "\u0647\u0646\u0648\u0632 \u0645\u062A\u0646\u06CC \u062A\u062D\u0644\u06CC\u0644 \u0646\u0634\u062F\u0647"),
-                                React.createElement("p", null, "\u0645\u062A\u0646 \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F \u0648 \u062F\u06A9\u0645\u0647 \u0628\u0631\u0631\u0633\u06CC \u0631\u0627 \u0628\u0632\u0646\u06CC\u062F. \u0646\u062A\u06CC\u062C\u0647 \u062F\u0631 \u0647\u0645\u06CC\u0646 \u0628\u062E\u0634 \u0646\u0645\u0627\u06CC\u0634 \u062F\u0627\u062F\u0647 \u0645\u06CC\u200C\u0634\u0648\u062F.")) : React.createElement("div", { className: "analysis-content" },
-                                React.createElement("div", { className: 'verdict ' + (score === null ? 'no-model' : finalVerdict) },
-                                    React.createElement("div", { className: "verdict-top" },
-                                        React.createElement("span", null, "\u0627\u0631\u0632\u06CC\u0627\u0628\u06CC \u0645\u0646\u0634\u0623 \u0645\u062A\u0646"),
-                                        React.createElement("span", { className: "tiny" },
-                                            "\u0645\u062F\u0644 ",
-                                            labels[language])),
-                                    React.createElement("strong", null, verdict),
-                                    score !== null ? React.createElement(React.Fragment, null,
-                                        React.createElement("div", { className: "score-line" },
-                                            React.createElement("b", null,
-                                                score.toLocaleString('fa-IR'),
-                                                React.createElement("small", null, " / \u06F1\u06F0\u06F0")),
-                                            React.createElement("span", null, onnxScore !== null ? 'پردازش ONNX در مرورگر' : 'امتیاز مدل؛ نه احتمال قطعی')),
-                                        React.createElement("div", { className: "meter" },
-                                            React.createElement("div", { style: { width: score + '%' } }))) : React.createElement("p", { className: "no-model-text" }, prediction?.reason || 'برای متن ترکیبی، مدل منتشرشده در دسترس نیست.')),
-                                React.createElement("div", { className: "report-stats" },
+                                    React.createElement(Icon, { name: "search", size: 26 })),
+                                React.createElement("h3", null, tab === 'notable' ? 'یافته برجسته‌ای در این دسته نیست' : 'الگوی تعریف‌شده‌ای پیدا نشد'),
+                                React.createElement("p", null, "\u0627\u06CC\u0646 \u0645\u0648\u0636\u0648\u0639 \u0628\u0647 \u0645\u0639\u0646\u06CC \u0627\u0646\u0633\u0627\u0646\u06CC \u0628\u0648\u062F\u0646 \u0645\u062A\u0646 \u0646\u06CC\u0633\u062A. \u0641\u0642\u0637 \u062F\u0631 \u0645\u062D\u062F\u0648\u062F\u0647 \u0642\u0648\u0627\u0639\u062F \u0641\u0639\u0644\u06CC \u0628\u0631\u0646\u0627\u0645\u0647 \u0646\u0634\u0627\u0646\u0647\u200C\u0627\u06CC \u067E\u06CC\u062F\u0627 \u0646\u0634\u062F\u0647 \u0627\u0633\u062A."))),
+                            React.createElement("aside", { className: "annotation-panel", id: "evidence-preview" },
+                                React.createElement("div", { className: "annotation-header" },
                                     React.createElement("div", null,
-                                        React.createElement("strong", null, report.wordCount.toLocaleString('fa-IR')),
-                                        React.createElement("span", null, "\u0648\u0627\u0698\u0647")),
+                                        React.createElement("h3", null,
+                                            React.createElement(Icon, { name: "eye", size: 19 }),
+                                            " \u0645\u062A\u0646 \u0639\u0644\u0627\u0645\u062A\u200C\u06AF\u0630\u0627\u0631\u06CC\u200C\u0634\u062F\u0647"),
+                                        React.createElement("p", null, "\u0628\u0631\u0627\u06CC \u0645\u0634\u0627\u0647\u062F\u0647 \u062C\u0632\u0626\u06CC\u0627\u062A\u060C \u0628\u062E\u0634\u200C\u0647\u0627\u06CC \u0639\u0644\u0627\u0645\u062A\u200C\u06AF\u0630\u0627\u0631\u06CC\u200C\u0634\u062F\u0647 \u0631\u0627 \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC\u062F.")),
+                                    React.createElement("span", { className: "annotations-count" },
+                                        shortNumber(report.totalHighlights),
+                                        " \u0646\u0634\u0627\u0646\u0647")),
+                                React.createElement("div", { className: "legend" },
+                                    React.createElement("span", null,
+                                        React.createElement("i", { className: "lg-high" }),
+                                        "\u067E\u0631\u0631\u0646\u06AF"),
+                                    React.createElement("span", null,
+                                        React.createElement("i", { className: "lg-medium" }),
+                                        "\u0645\u062A\u0648\u0633\u0637"),
+                                    React.createElement("span", null,
+                                        React.createElement("i", { className: "lg-low" }),
+                                        "\u0636\u0639\u06CC\u0641")),
+                                React.createElement("div", { className: `annotated-text ${isStale ? 'dimmed' : ''}`, dir: report.language === 'en' ? 'ltr' : 'rtl' }, this.renderAnnotatedText()),
+                                active ? React.createElement("div", { className: "selected-explanation" },
                                     React.createElement("div", null,
-                                        React.createElement("strong", null, report.findings.length.toLocaleString('fa-IR')),
-                                        React.createElement("span", null, "\u0646\u0634\u0627\u0646\u0647")),
+                                        React.createElement(Icon, { name: "scan", size: 16 }),
+                                        React.createElement("strong", null, active.title),
+                                        React.createElement("button", { type: "button", onClick: () => this.setState({ activeId: null }), "aria-label": "\u0628\u0633\u062A\u0646 \u062A\u0648\u0636\u06CC\u062D" }, "\u00D7")),
+                                    React.createElement("p", null, active.description),
+                                    React.createElement("small", null, active.caveat)) : React.createElement("div", { className: "annotation-footer" },
+                                    React.createElement(Icon, { name: "info", size: 16 }),
+                                    " \u0631\u0646\u06AF\u200C\u0647\u0627 \u0645\u06CC\u0632\u0627\u0646 \u0627\u0647\u0645\u06CC\u062A \u0628\u0627\u0632\u0628\u06CC\u0646\u06CC \u0631\u0627 \u0646\u0634\u0627\u0646 \u0645\u06CC\u200C\u062F\u0647\u0646\u062F\u060C \u0646\u0647 \u0627\u062D\u062A\u0645\u0627\u0644 AI \u0628\u0648\u062F\u0646."),
+                                isStale && React.createElement("div", { className: "stale-notice" },
+                                    React.createElement(Icon, { name: "refresh", size: 15 }),
+                                    " \u0645\u062A\u0646 \u0648\u06CC\u0631\u0627\u06CC\u0634 \u0634\u062F\u0647\u061B \u0628\u0631\u0627\u06CC \u0628\u0647\u200C\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06CC \u06CC\u0627\u0641\u062A\u0647\u200C\u0647\u0627 \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u062D\u0644\u06CC\u0644 \u06A9\u0646.")))),
+                    React.createElement("section", { id: "method", className: "method-section" },
+                        React.createElement("div", { className: "section-heading compact" },
+                            React.createElement("div", null,
+                                React.createElement("span", { className: "section-number" }, "03 /"),
+                                React.createElement("h2", null, "\u0631\u0648\u0634 \u062A\u062D\u0644\u06CC\u0644 \u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C"),
+                                React.createElement("p", null, "\u0631\u0648\u0634 \u062A\u062D\u0644\u06CC\u0644 \u0634\u0641\u0627\u0641 \u0627\u0633\u062A \u0648 \u0646\u062A\u06CC\u062C\u0647 \u0622\u0646 \u0628\u0647\u200C\u0639\u0646\u0648\u0627\u0646 \u062A\u0634\u062E\u06CC\u0635 \u0642\u0637\u0639\u06CC \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0627\u0631\u0627\u0626\u0647 \u0646\u0645\u06CC\u200C\u0634\u0648\u062F."))),
+                        React.createElement("div", { className: "method-grid" },
+                            React.createElement("div", { className: "method-card" },
+                                React.createElement("span", { className: "method-num" }, "01"),
+                                React.createElement("div", { className: "method-icon" },
+                                    React.createElement(Icon, { name: "scan", size: 23 })),
+                                React.createElement("h3", null, "\u062A\u062D\u0644\u06CC\u0644 \u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627\u06CC \u0632\u0628\u0627\u0646\u06CC"),
+                                React.createElement("p", null, "\u0639\u0628\u0627\u0631\u062A\u200C\u0647\u0627\u06CC \u0642\u0627\u0644\u0628\u06CC\u060C \u0627\u0631\u062C\u0627\u0639\u200C\u0647\u0627\u06CC \u0645\u0628\u0647\u0645\u060C \u0627\u062F\u0628\u06CC\u0627\u062A \u062A\u0628\u0644\u06CC\u063A\u0627\u062A\u06CC\u060C \u062A\u0642\u0627\u0628\u0644\u200C\u0647\u0627\u06CC \u062A\u06A9\u0631\u0627\u0631\u06CC \u0648 \u062E\u0648\u062F\u0627\u0631\u062C\u0627\u0639\u06CC \u0631\u0627 \u0628\u0631\u0631\u0633\u06CC \u0645\u06CC\u200C\u06A9\u0646\u062F.")),
+                            React.createElement("div", { className: "method-card" },
+                                React.createElement("span", { className: "method-num" }, "02"),
+                                React.createElement("div", { className: "method-icon" },
+                                    React.createElement(Icon, { name: "layers", size: 23 })),
+                                React.createElement("h3", null, "\u062A\u062D\u0644\u06CC\u0644 \u0631\u06CC\u062A\u0645 \u0648 \u062A\u06A9\u0631\u0627\u0631"),
+                                React.createElement("p", null, "\u062A\u0646\u0648\u0639 \u0648\u0627\u0698\u06AF\u0627\u0646\u060C \u0622\u0646\u062A\u0631\u0648\u067E\u06CC\u060C \u0631\u06CC\u062A\u0645 \u062C\u0645\u0644\u0647\u200C\u0647\u0627 \u0648 \u0627\u0644\u06AF\u0648\u0647\u0627\u06CC \u062A\u06A9\u0631\u0627\u0631 \u067E\u0646\u0647\u0627\u0646 \u0631\u0627 \u062F\u0631 \u06A9\u0646\u0627\u0631 \u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627\u06CC \u0633\u0627\u062E\u062A\u0627\u0631\u06CC \u0628\u0631\u0631\u0633\u06CC \u0645\u06CC\u200C\u06A9\u0646\u062F.")),
+                            React.createElement("div", { className: "method-card" },
+                                React.createElement("span", { className: "method-num" }, "03"),
+                                React.createElement("div", { className: "method-icon" },
+                                    React.createElement(Icon, { name: "chart", size: 23 })),
+                                React.createElement("h3", null, "\u06AF\u0632\u0627\u0631\u0634 \u0642\u0627\u0628\u0644 \u067E\u06CC\u06AF\u06CC\u0631\u06CC"),
+                                React.createElement("p", null, "\u0628\u0631\u0627\u06CC \u0647\u0631 \u06CC\u0627\u0641\u062A\u0647\u060C \u0634\u0627\u0647\u062F \u0648\u0627\u0642\u0639\u06CC \u062F\u0631 \u0645\u062A\u0646 \u0648 \u062A\u0648\u0636\u06CC\u062D \u0645\u062E\u062A\u0635\u0631\u06CC \u0627\u0632 \u0645\u062D\u062F\u0648\u062F\u06CC\u062A \u0646\u062A\u06CC\u062C\u0647 \u0627\u0631\u0627\u0626\u0647 \u0645\u06CC\u200C\u06A9\u0646\u062F.")))),
+                    React.createElement("section", { className: "style-section", id: "style-profile", "aria-label": "\u067E\u0631\u0648\u0641\u0627\u06CC\u0644 \u0622\u0645\u0627\u0631\u06CC \u0645\u062A\u0646" },
+                        React.createElement("div", { className: "section-heading compact" },
+                            React.createElement("div", null,
+                                React.createElement("span", { className: "section-number" }, "04 /"),
+                                React.createElement("h2", null, "\u067E\u0631\u0648\u0641\u0627\u06CC\u0644 \u0622\u0645\u0627\u0631\u06CC \u0646\u0648\u0634\u062A\u0627\u0631"),
+                                React.createElement("p", null, "\u0647\u0634\u062A \u0648\u06CC\u0698\u06AF\u06CC \u0645\u0633\u062A\u0642\u0644 \u06A9\u0647 \u0627\u0644\u06AF\u0648\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u0648\u0627\u0698\u0647 \u0648 \u0633\u0627\u062E\u062A\u0627\u0631 \u0645\u062A\u0646 \u0631\u0627 \u062A\u0648\u0635\u06CC\u0641 \u0645\u06CC\u200C\u06A9\u0646\u0646\u062F\u061B \u0646\u0647 \u0627\u06CC\u0646\u06A9\u0647 \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0631\u0627 \u0642\u0637\u0639\u06CC \u0627\u0639\u0644\u0627\u0645 \u06A9\u0646\u0646\u062F."))),
+                        React.createElement("div", { className: "style-grid" }, report.style.metrics.map(m => React.createElement("div", { className: `style-metric ${m.available ? '' : 'muted'}`, key: m.id, title: m.detail },
+                            React.createElement("div", { className: "style-metric-top" },
+                                React.createElement("span", null, m.title),
+                                React.createElement(Icon, { name: "chart", size: 16 })),
+                            React.createElement("strong", { dir: "auto" }, m.display),
+                            React.createElement("p", null, m.detail)))),
+                        React.createElement("p", { className: "style-info" },
+                            React.createElement(Icon, { name: "info", size: 17 }),
+                            " \u0627\u06CC\u0646 \u0627\u0639\u062F\u0627\u062F \u0648\u06CC\u0698\u06AF\u06CC\u200C\u0647\u0627\u06CC \u0622\u0645\u0627\u0631\u06CC \u0631\u0627 \u062A\u0648\u0635\u06CC\u0641 \u0645\u06CC\u200C\u06A9\u0646\u0646\u062F. \u0628\u062F\u0648\u0646 \u067E\u06CC\u06A9\u0631\u0647 \u0622\u0632\u0645\u0627\u06CC\u0634\u06CC \u0645\u0639\u062A\u0628\u0631\u060C \u00AB\u0622\u0646\u062A\u0631\u0648\u067E\u06CC \u0628\u06CC\u0634\u062A\u0631\u00BB \u06CC\u0627 \u00AB\u0631\u06CC\u062A\u0645 \u06CC\u06A9\u0646\u0648\u0627\u062E\u062A\u200C\u062A\u0631\u00BB \u0628\u0647 \u0645\u0639\u0646\u0627\u06CC AI \u0628\u0648\u062F\u0646 \u0646\u06CC\u0633\u062A.")),
+                    React.createElement("section", { className: "reference-section", id: "style-compare", "aria-label": "\u0645\u0642\u0627\u06CC\u0633\u0647 \u0633\u0628\u06A9 \u0646\u0648\u0634\u062A\u0647" },
+                        React.createElement("div", { className: "section-heading compact" },
+                            React.createElement("div", null,
+                                React.createElement("span", { className: "section-number" }, "05 /"),
+                                React.createElement("h2", null, "\u0645\u0642\u0627\u06CC\u0633\u0647 \u0627\u0645\u0636\u0627\u06CC \u0646\u0648\u0634\u062A\u0627\u0631\u06CC"),
+                                React.createElement("p", null, "\u0628\u0631\u0627\u06CC \u0645\u0642\u0627\u06CC\u0633\u0647 \u0648\u06CC\u0698\u06AF\u06CC\u200C\u0647\u0627\u06CC \u0646\u0648\u0634\u062A\u0627\u0631\u06CC\u060C \u06CC\u06A9 \u0645\u062A\u0646 \u0645\u0631\u062C\u0639 \u0628\u0627 \u0632\u0628\u0627\u0646 \u0648 \u0642\u0627\u0644\u0628 \u0645\u0634\u0627\u0628\u0647 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F."))),
+                        React.createElement("div", { className: "reference-panel panel" },
+                            React.createElement("label", { htmlFor: "reference-input" }, "\u0645\u062A\u0646 \u0645\u0631\u062C\u0639 (\u0645\u062B\u0644\u0627\u064B \u0646\u0648\u0634\u062A\u0647 \u0642\u0628\u0644\u06CC \u0647\u0645\u0627\u0646 \u0646\u0648\u06CC\u0633\u0646\u062F\u0647)"),
+                            React.createElement("textarea", { id: "reference-input", dir: "auto", value: referenceText, maxLength: 40000, onChange: (e) => this.updateReference(e.target.value), placeholder: "\u06CC\u06A9 \u0646\u0645\u0648\u0646\u0647 \u0646\u0648\u0634\u062A\u0627\u0631 \u0641\u0627\u0631\u0633\u06CC \u06CC\u0627 \u0627\u0646\u06AF\u0644\u06CC\u0633\u06CC \u0628\u0631\u0627\u06CC \u0645\u0642\u0627\u06CC\u0633\u0647 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F..." }),
+                            React.createElement("div", { className: "reference-actions" },
+                                React.createElement("span", null,
+                                    shortNumber(textTokens(referenceText)),
+                                    " \u0648\u0627\u0698\u0647 \u00B7 \u0628\u0647\u062A\u0631 \u0627\u0633\u062A \u0647\u0631 \u0645\u062A\u0646 \u062D\u062F\u0627\u0642\u0644 \u06F1\u06F5\u06F0 \u0648\u0627\u0698\u0647 \u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F."),
+                                React.createElement("button", { className: "primary-button", type: "button", disabled: !referenceText.trim() || (!referenceStale && !!referenceStyle) || isStale, onClick: this.compareReference },
+                                    React.createElement(Icon, { name: "layers", size: 16 }),
+                                    " \u0645\u0642\u0627\u06CC\u0633\u0647 \u0633\u0628\u06A9")),
+                            referenceStale && React.createElement("p", { className: "compare-hint" }, "\u0645\u062A\u0646 \u0645\u0631\u062C\u0639 \u062A\u063A\u06CC\u06CC\u0631 \u06A9\u0631\u062F\u0647 \u0627\u0633\u062A\u061B \u0628\u0631\u0627\u06CC \u062F\u06CC\u062F\u0646 \u0646\u062A\u0627\u06CC\u062C \u062C\u062F\u06CC\u062F\u060C \u0645\u0642\u0627\u06CC\u0633\u0647 \u0631\u0627 \u0627\u062C\u0631\u0627 \u06A9\u0646\u06CC\u062F."),
+                            comparison && React.createElement("div", { className: "compare-results", "aria-live": "polite" },
+                                React.createElement("h3", null, comparison.comparable ? 'تفاوت‌های برجسته در امضای نوشتار' : 'امکان مقایسه کافی نیست'),
+                                React.createElement("p", null, comparison.explanation),
+                                comparison.comparable && React.createElement("div", { className: "compare-list" }, comparison.differences.slice(0, 6).map(delta => React.createElement("div", { className: "compare-row", key: delta.id },
+                                    React.createElement("strong", null, delta.title),
                                     React.createElement("div", null,
-                                        React.createElement("strong", null, labels[report.language]),
-                                        React.createElement("span", null, "\u0632\u0628\u0627\u0646"))),
-                                React.createElement("div", { className: "section-label" }, "\u0634\u0648\u0627\u0647\u062F \u0642\u0627\u0628\u0644 \u0628\u0631\u0631\u0633\u06CC"),
-                                React.createElement("div", { className: "findings" }, report.findings.length ? report.findings.slice(0, 8).map(f => React.createElement("article", { className: "finding", key: f.id },
-                                    React.createElement("div", { className: "finding-top" },
-                                        React.createElement("b", null, f.title),
-                                        React.createElement("span", null, f.hits.length ? f.hits.length.toLocaleString('fa-IR') + ' مورد' : 'الگوی ساختاری')),
-                                    React.createElement("p", null, f.description),
-                                    f.hits.length ? React.createElement("blockquote", { dir: "auto" },
-                                        "\u00AB",
-                                        f.hits[0].text.slice(0, 150),
-                                        "\u00BB") : null)) : React.createElement("p", { className: "muted" }, "\u062F\u0631 \u0627\u06CC\u0646 \u0645\u062A\u0646\u060C \u0646\u0634\u0627\u0646\u0647 \u0642\u0627\u0628\u0644\u200C\u06AF\u0632\u0627\u0631\u0634\u06CC \u0627\u0632 \u0642\u0648\u0627\u0639\u062F \u0641\u0639\u0644\u06CC \u067E\u06CC\u062F\u0627 \u0646\u0634\u062F. \u0627\u06CC\u0646 \u0628\u0647 \u0645\u0639\u0646\u0627\u06CC \u0627\u0646\u0633\u0627\u0646\u06CC\u200C\u0628\u0648\u062F\u0646 \u0645\u062A\u0646 \u0646\u06CC\u0633\u062A.")),
-                                React.createElement("button", { className: "secondary-button", onClick: this.exportReport }, "\u062F\u0631\u06CC\u0627\u0641\u062A \u06AF\u0632\u0627\u0631\u0634 \u0645\u062A\u0646\u06CC")))),
-                    React.createElement("div", { className: "status-line" },
-                        React.createElement("span", { className: "status-bullet" }),
-                        status),
-                    React.createElement("p", { className: "disclaimer" }, "\u0646\u062A\u06CC\u062C\u0647 \u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C \u0635\u0631\u0641\u0627\u064B \u06CC\u06A9 \u0627\u0631\u0632\u06CC\u0627\u0628\u06CC \u0622\u0645\u0627\u0631\u06CC \u0648 \u0632\u0628\u0627\u0646\u06CC \u0627\u0633\u062A \u0648 \u0628\u0631\u0627\u06CC \u0627\u062B\u0628\u0627\u062A \u0647\u0648\u06CC\u062A \u0646\u0648\u06CC\u0633\u0646\u062F\u0647 \u06CC\u0627 \u062A\u0635\u0645\u06CC\u0645\u200C\u0647\u0627\u06CC \u062A\u0646\u0628\u06CC\u0647\u06CC \u0648 \u062D\u0642\u0648\u0642\u06CC \u06A9\u0627\u0641\u06CC \u0646\u06CC\u0633\u062A.")),
-                React.createElement("footer", { className: "pub-footer" },
-                    "\u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C ",
-                    React.createElement("span", null, "\u00A9 \u06F2\u06F0\u06F2\u06F6"),
-                    React.createElement("span", null, "\u00B7"),
-                    " \u0646\u0633\u062E\u0647 \u06F2.\u06F4.\u06F0"));
+                                        React.createElement("span", null,
+                                            "\u0645\u062A\u0646 \u0627\u0635\u0644\u06CC: ",
+                                            delta.current),
+                                        React.createElement("span", null,
+                                            "\u0645\u0631\u062C\u0639: ",
+                                            delta.reference)))))))),
+                    React.createElement("section", { id: "limitations", className: "limitations" },
+                        React.createElement("span", { className: "limitations-icon" },
+                            React.createElement(Icon, { name: "shield", size: 23 })),
+                        React.createElement("div", null,
+                            React.createElement("h3", null, "\u06CC\u06A9 \u06CC\u0627\u062F\u0622\u0648\u0631\u06CC \u0645\u0647\u0645 \u062F\u0631\u0628\u0627\u0631\u0647 \u062A\u0634\u062E\u06CC\u0635 \u0647\u0648\u0634 \u0645\u0635\u0646\u0648\u0639\u06CC"),
+                            React.createElement("p", null,
+                                "\u0627\u06CC\u0646 \u0627\u0628\u0632\u0627\u0631 \u0628\u062F\u0648\u0646 \u062F\u0627\u062F\u0647 \u0622\u0645\u0648\u0632\u0634\u06CC\u060C ",
+                                React.createElement("strong", null, "\u0646\u0645\u06CC\u200C\u062A\u0648\u0627\u0646\u062F \u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0631\u0627 \u062A\u0634\u062E\u06CC\u0635 \u062F\u0647\u062F"),
+                                ". \u0645\u062F\u0644 \u0645\u062D\u0644\u06CC \u067E\u0633 \u0627\u0632 \u0622\u0645\u0648\u0632\u0634 \u0647\u0645 \u0641\u0642\u0637 \u06CC\u06A9 \u0628\u0631\u0622\u0648\u0631\u062F \u0627\u062D\u062A\u0645\u0627\u0644\u06CC \u0648 \u062E\u0637\u0627\u067E\u0630\u06CC\u0631 \u0627\u0631\u0627\u0626\u0647 \u0645\u06CC\u200C\u06A9\u0646\u062F. \u0645\u062A\u0646 \u0627\u0646\u0633\u0627\u0646\u06CC \u0645\u0645\u06A9\u0646 \u0627\u0633\u062A \u0645\u0646\u0638\u0645 \u0648 \u06A9\u0644\u06CC\u0634\u0647\u200C\u0627\u06CC \u0628\u0627\u0634\u062F \u0648 \u0645\u062A\u0646 \u062A\u0648\u0644\u06CC\u062F\u0634\u062F\u0647 \u0628\u0627 AI \u0645\u0645\u06A9\u0646 \u0627\u0633\u062A \u0646\u0634\u0627\u0646\u0647\u200C\u0647\u0627\u06CC \u0638\u0627\u0647\u0631\u06CC \u0646\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F. \u0648\u06CC\u0631\u0627\u06CC\u0634 \u0627\u0646\u0633\u0627\u0646\u06CC \u0648 \u0645\u0627\u0634\u06CC\u0646\u06CC \u0646\u06CC\u0632 \u0645\u06CC\u200C\u062A\u0648\u0627\u0646\u062F \u0628\u0627 \u0647\u0645 \u062A\u0631\u06A9\u06CC\u0628 \u0634\u0648\u062F. \u0646\u062A\u0627\u06CC\u062C \u0646\u0628\u0627\u06CC\u062F \u0628\u0647\u200C\u062A\u0646\u0647\u0627\u06CC\u06CC \u0645\u0628\u0646\u0627\u06CC \u062A\u0635\u0645\u06CC\u0645\u200C\u0647\u0627\u06CC \u062A\u062D\u0635\u06CC\u0644\u06CC\u060C \u0627\u0633\u062A\u062E\u062F\u0627\u0645\u06CC \u06CC\u0627 \u0627\u0646\u0636\u0628\u0627\u0637\u06CC \u0642\u0631\u0627\u0631 \u06AF\u06CC\u0631\u0646\u062F.")))),
+                React.createElement("footer", { className: "footer" },
+                    React.createElement("div", { className: "shell footer-inner" },
+                        React.createElement("div", { className: "footer-brand" },
+                            React.createElement("span", { className: "brand-mark mini" },
+                                React.createElement(Icon, { name: "scan", size: 16 })),
+                            React.createElement("strong", null, "\u0646\u0648\u06CC\u0633\u200C\u0633\u0646\u062C"),
+                            React.createElement("span", null, "\u00B7"),
+                            React.createElement("span", null, "\u0633\u0627\u062E\u062A\u0647\u200C\u0634\u062F\u0647 \u0628\u0627 React + TypeScript")),
+                        React.createElement("span", null, "\u0646\u0633\u062E\u0647 \u06F2.\u06F5.\u06F0 \u2014 \u062A\u062D\u0644\u06CC\u0644 \u062E\u0635\u0648\u0635\u06CC \u062F\u0631 \u0645\u0631\u0648\u0631\u06AF\u0631\u061B \u0622\u0645\u0648\u0632\u0634 \u062F\u0631 \u067E\u0646\u0644 \u062C\u062F\u0627\u06AF\u0627\u0646\u0647."))));
         }
     }
     NevisApp.App = App;
-    ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
 })(NevisApp || (NevisApp = {}));
+class NevisSafeBoundary extends React.Component {
+    constructor(props) { super(props); this.state = { failed: false }; }
+    componentDidCatch(e) { console.error('NevisSanj render', e); this.setState({ failed: true }); }
+    render() {
+        return this.state.failed ? React.createElement('section', { dir: 'rtl', style: { padding: 35, margin: 30 } }, 'نمایش نتیجه با مشکل مواجه شد. صفحه را دوباره بارگذاری کنید.') : this.props.children;
+    }
+}
+ReactDOM.render(React.createElement(NevisSafeBoundary, null, React.createElement(NevisApp.App)), document.getElementById('root'));
 //# sourceMappingURL=app.js.map

@@ -7,6 +7,7 @@ on:
       - 'dist/index.html'
       - 'dist/style.css'
       - 'dist/vendor/**'
+      - 'dist/fonts/**'
       - 'models/published/**'
       - 'tsconfig.json'
       - 'package.json'
@@ -29,8 +30,6 @@ jobs:
           node-version: '22'
       - name: Install TypeScript
         run: npm install --no-audit --no-fund
-      - name: Install ONNX Runtime Web for browser-only inference
-        run: npm install --no-save --no-audit --no-fund onnxruntime-web@1.30.0
       - name: Compile the React + TypeScript frontend
         run: npm run build
       - name: Publish only the public site and approved models
@@ -40,9 +39,6 @@ jobs:
           shopt -s nullglob
           for item in models/published/*.json models/published/*.onnx; do cp "$item" dist/models/; done
           rm -f dist/app.js.map
-          cp node_modules/onnxruntime-web/dist/ort.min.js dist/vendor/ort.min.js
-          cp node_modules/onnxruntime-web/dist/ort-wasm*.wasm dist/vendor/
-          cp node_modules/onnxruntime-web/dist/ort-wasm*.mjs dist/vendor/
           touch dist/.nojekyll
           if [ -d admin_data ]; then echo 'Private training data must never enter the public artifact'; exit 1; fi
       - uses: actions/configure-pages@v5

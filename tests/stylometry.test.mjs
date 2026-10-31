@@ -89,10 +89,10 @@ test('style profile appears in commercial exported analysis and report', () => {
 test('UI has no outbound academic or GitHub reference links, and minor version is correct', () => {
   const ui = fs.readFileSync(path.join(root, 'src', 'app.tsx'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '2.4.0');
+  assert.equal(pkg.version, '2.5.6');
   assert.ok(!ui.includes('research-section'));
   assert.ok(!ui.includes('sourceUrl'));
   assert.ok(!ui.includes('github.com'));
-  assert.ok(ui.includes('بررسی متن'));
+  assert.ok(ui.includes('فضای تحلیل متن'));
   assert.ok(!ui.includes('آموزش اختصاصی تشخیص'));
 });

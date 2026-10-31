@@ -1,0 +1,13 @@
+# NevisSanj local storage: SQLite + Parquet
+- Private source of truth: admin_data/corpus.sqlite3 (WAL, indexed digest, language, label, group).
+- Tables: examples (human/AI text + JSON provenance), revisions (future rewrite lineage).
+- Source discovery ingests approved, explicitly labeled records straight into SQLite.
+- Existing JSONL files are retained as migration backups and input corpus snapshots; do not delete them.
+- The scheduler imports only approved files whose size or modification time changed and does not automatically publish or retrain models.
+- The private admin dashboard reads indexed counts; manual imports and on-demand training read from SQLite.
+- Exports for analytical/training batches: admin_data/exports/training-fa.parquet and training-en.parquet. Re-export after imports with `python tools/export_corpus_parquet.py`.
+- To refresh from preserved JSONL: `python -c "import sys;sys.path.insert(0,'python');import corpus_store as c;print(c.import_jsonl('fa','admin_data/fa.jsonl'))"` (also for en).
+- To validate integrity: `python -c "import sqlite3; print(sqlite3.connect('admin_data/corpus.sqlite3').execute('PRAGMA integrity_check').fetchone())"`.
+- To roll back to legacy JSONL behavior, first stop the admin service; rename the SQLite file and its WAL/SHM companions, restore python code files from admin_data/backup-sqlite-migration-20261031/python, and restart. New SQLite-only records must be exported to JSONL before legacy fallback, or they will not appear.
+- No training data or SQLite files should be served to the public web application. Existing published model JSON/ONNX files remain unchanged.
+- This migration improves indexing, imports and dashboard latency. It does not make heavy ML feature extraction fast or validate authorship accuracy.

@@ -1,6 +1,6 @@
 {
   "name": "nevis-sanj",
-  "version": "2.4.0",
+  "version": "2.5.6",
   "private": true,
   "description": "Offline Persian/English browser classifier + Python local training studio + GitHub Pages deployment",
   "scripts": {

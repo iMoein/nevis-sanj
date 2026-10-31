@@ -8,6 +8,13 @@ class DetectorTests(unittest.TestCase):
         t='در این پروژه برای بررسی نمونه‌های جدید باید چند آزمایش مستقل انجام بدهیم. '*8
         rows,skipped=load_dataset(json.dumps({'text':t,'label':'ai','group':'g'},ensure_ascii=False)+'\n','sample.jsonl')
         self.assertEqual(rows[0]['label'],'ai');self.assertEqual(skipped,0)
+    def test_unicode_line_separator_inside_jsonl_text_does_not_break_parsing(self):
+        text=('The project includes a thorough written assessment of several different examples. ' * 7) + '\u2028' + ('Every participant is asked to provide details of their experience. ' * 4)
+        content=json.dumps({'text':text,'label':'human','group':'unicode-1'},ensure_ascii=False)+'\n'
+        rows,skipped=load_dataset(content,'samples.jsonl')
+        self.assertEqual(len(rows),1)
+        self.assertEqual(skipped,0)
+
     def test_python_javascript_feature_parity(self):
         samples=['در دنیای امروز فناوری نوین به جای کلمات کلی از مثال‌های دقیق استفاده می‌کند. '*4,
                  'The project review includes careful comparison of outcomes and examples across many separate writing samples. '*4]

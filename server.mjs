@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const host = '127.0.0.1'; // Loopback only: never expose pasted text to your network.
 const port = Number(process.env.PORT || 4173);
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.map': 'application/json; charset=utf-8', '.onnx': 'application/octet-stream' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.json': 'application/json; charset=utf-8', '.map': 'application/json; charset=utf-8', '.onnx': 'application/octet-stream' };
 
 const server = http.createServer((req, res) => {
   let pathname;
@@ -23,6 +23,7 @@ const server = http.createServer((req, res) => {
   const stream = fs.createReadStream(file);
   stream.on('error', () => { if (!res.headersSent) res.writeHead(404); res.end('Not found'); });
   res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
+  res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");

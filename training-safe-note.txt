@@ -1,0 +1,1 @@
+Local source registry and training data live under admin_data and training/approved. Never commit them to a public repository.

@@ -72,7 +72,7 @@ def load_dataset(content:str, filename:str):
         obj=json.loads(content)
         data=obj if isinstance(obj,list) else obj.get('examples',[])
     else:
-        data=[json.loads(line) for line in content.splitlines() if line.strip()]
+        data=[json.loads(line) for line in content.split("\n") if line.strip()]
     if len(data)>50000: raise ValueError('حداکثر ۵۰ هزار نمونه در هر فایل مجاز است.')
     output=[]; seen=set(); skipped=0
     for row in data:
@@ -125,14 +125,32 @@ def train(rows:list[dict],language:str):
         else:train_rows.extend(g)
     if min(hold_counts.values())<5:raise ValueError('داده کافی برای ارزیابی مستقل وجود ندارد.')
     # Reject validation items nearly identical to training texts, irrespective of group label.
+    # Exact sparse intersection replaces quadratic Python loops.
+    from scipy.sparse import csr_matrix
     train_sketches=[_sketch(r['text']) for r in train_rows]
+    vocabulary={};cols=[];indptr=[0]
+    for sketch in train_sketches:
+        for sh in sketch:cols.append(vocabulary.setdefault(sh,len(vocabulary)))
+        indptr.append(len(cols))
+    sparse_train=csr_matrix((np.ones(len(cols),dtype=np.int32),
+                             np.asarray(cols,dtype=np.int32),
+                             np.asarray(indptr,dtype=np.int32)),
+                             shape=(len(train_sketches),len(vocabulary)),dtype=np.int32)
+    transpose=sparse_train.transpose().tocsr()
     def safe(r):
-        s=_sketch(r['text'])
-        return not any(len(s&other)/max(1,min(len(s),len(other))) >= .48 for other in train_sketches)
+        sk=_sketch(r['text'])
+        idx=[vocabulary[x] for x in sk if x in vocabulary]
+        if not idx:return True
+        qry=csr_matrix((np.ones(len(idx),dtype=np.int32),
+                        (np.zeros(len(idx),dtype=np.int32),idx)),
+                        shape=(1,len(vocabulary)),dtype=np.int32)
+        intersections=qry.dot(transpose).tocoo()
+        return not any(int(n)/max(1,min(len(sk),len(train_sketches[i])))>=.48
+                       for i,n in zip(intersections.col,intersections.data))
     clean=[r for r in holdout if safe(r)]
     if min(Counter(r['label'] for r in clean).values(),default=0)<5 or len(Counter(r['label'] for r in clean))<2:
         raise ValueError('نمونه مستقل کافی پس از حذف متن‌های مشابه باقی نمانده است.')
-    classifier=LogisticRegression(C=.8,max_iter=500,class_weight='balanced',random_state=42)
+    classifier=LogisticRegression(C=.8,max_iter=200,solver='liblinear',class_weight='balanced',random_state=42)
     classifier.fit(as_matrix(train_rows),np.array([int(r['label']=='ai') for r in train_rows]))
     score=classifier.predict_proba(as_matrix(clean))[:,1]
     labels=[int(r['label']=='ai') for r in clean]
@@ -142,7 +160,10 @@ def train(rows:list[dict],language:str):
     metrics={'train_count':len(train_rows),'test_count':len(clean),'test_human':tn+fp,'test_ai':tp+fn,
              'accuracy':round((tp+tn)/len(clean),4),'ai_recall':round(tp/max(1,tp+fn),4),
              'human_recall':round(tn/max(1,tn+fp),4),'false_positive_rate':round(fp/max(1,tn+fp),4),
-             'precision':round(tp/max(1,tp+fp),4),'heldout_groups':len(set(r['group'] for r in clean)),
+             'precision':round(tp/max(1,tp+fp),4),'balanced_accuracy':round((tp/max(1,tp+fn)+tn/max(1,tn+fp))/2,4),
+             'train_human':sum(r['label']=='human' for r in train_rows),'train_ai':sum(r['label']=='ai' for r in train_rows),
+             'confusion':{'tp':tp,'tn':tn,'fp':fp,'fn':fn},
+             'heldout_groups':len(set(r['group'] for r in clean)),
              'warning':'این ارزیابی با تعداد نمونه کم، برآورد دقت عمومی یا کالیبراسیون احتمال نیست.'}
     from datetime import datetime,timezone
     model={'schema':2,'language':language,'dimensions':DIM,'numeric_dimensions':NUM,

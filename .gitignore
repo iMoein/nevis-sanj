@@ -8,3 +8,9 @@ admin_data/
 # Public dist/models are rebuilt only from models/published
 /dist/models/*.json
 /dist/models/*.onnx
+
+training/approved/*.jsonl
+training/approved/*.csv
+training/approved/*.json
+
+*.parquet
