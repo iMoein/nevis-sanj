@@ -956,6 +956,130 @@ var NevisEngine;
     }
     NevisEngine.predictOnnx = predictOnnx;
 })(NevisEngine || (NevisEngine = {}));
+/**
+ * Persian writing editor — independent of the authorship/detection engine.
+ * A conservative, auditable style editor, NOT an LLM and NOT an AI-origin eraser.
+ */
+var NevisRewrite;
+(function (NevisRewrite) {
+    const RULES = [
+        { before: 'نمی شوند', after: 'نمی‌شوند', reason: 'نیم‌فاصله درست در فعل منفی' },
+        { before: 'نمی شود', after: 'نمی‌شود', reason: 'نیم‌فاصله درست در فعل منفی' },
+        { before: 'نمی کنند', after: 'نمی‌کنند', reason: 'نیم‌فاصله درست در فعل منفی' },
+        { before: 'نمی کند', after: 'نمی‌کند', reason: 'نیم‌فاصله درست در فعل منفی' },
+        { before: 'می شوند', after: 'می‌شوند', reason: 'نیم‌فاصله درست در فعل' },
+        { before: 'می شود', after: 'می‌شود', reason: 'نیم‌فاصله درست در فعل' },
+        { before: 'می کنند', after: 'می‌کنند', reason: 'نیم‌فاصله درست در فعل' },
+        { before: 'می کند', after: 'می‌کند', reason: 'نیم‌فاصله درست در فعل' },
+        { before: 'از اهمیت بالایی برخوردار است', after: 'اهمیت زیادی دارد', reason: 'بیان مستقیم‌تر' },
+        { before: 'از اهمیت بالایی برخوردار هستند', after: 'اهمیت زیادی دارند', reason: 'بیان مستقیم‌تر' },
+        { before: 'مورد بررسی قرار گرفت', after: 'بررسی شد', reason: 'کاهش فعل مرکب طولانی' },
+        { before: 'مورد بررسی قرار می‌گیرد', after: 'بررسی می‌شود', reason: 'کاهش فعل مرکب طولانی' },
+        { before: 'مورد استفاده قرار می‌گیرد', after: 'استفاده می‌شود', reason: 'فعل مستقیم‌تر' },
+        { before: 'مورد استفاده قرار می‌گیرند', after: 'استفاده می‌شوند', reason: 'فعل مستقیم‌تر' },
+        { before: 'این امکان را فراهم می‌سازد', after: 'این امکان را فراهم می‌کند', reason: 'فعل روان‌تر' },
+        { before: 'این امکان را فراهم می‌نماید', after: 'این امکان را فراهم می‌کند', reason: 'فعل روان‌تر' },
+        { before: 'به منظور', after: 'برای', reason: 'حذف عبارت اداری زائد' },
+        { before: 'در خصوص', after: 'درباره', reason: 'انتخاب واژه رایج‌تر' },
+        { before: 'در رابطه با', after: 'درباره', reason: 'انتخاب واژه رایج‌تر' },
+        { before: 'بهره‌گیری از', after: 'استفاده از', reason: 'واژه رایج‌تر' },
+        { before: 'بهره گیری از', after: 'استفاده از', reason: 'واژه رایج‌تر' },
+        { before: 'به طور کلی', after: 'در مجموع', reason: 'پیوند طبیعی‌تر' },
+        { before: 'به‌طور کلی', after: 'در مجموع', reason: 'پیوند طبیعی‌تر' },
+        { before: 'بدین ترتیب', after: 'به این ترتیب', reason: 'نوشتار روان‌تر' },
+        { before: 'می‌باشد', after: 'است', reason: 'فعل ساده‌تر' },
+        { before: 'می‌باشند', after: 'هستند', reason: 'فعل ساده‌تر' },
+        { before: 'می باشد', after: 'است', reason: 'فعل ساده‌تر' },
+        { before: 'می باشند', after: 'هستند', reason: 'فعل ساده‌تر' },
+        { before: 'می‌نماید', after: 'می‌کند', reason: 'فعل ساده‌تر' },
+        { before: 'می نماید', after: 'می‌کند', reason: 'فعل ساده‌تر' }
+    ];
+    const lexicalWord = '[\\p{L}\\p{N}\\u200c]';
+    const QUOTED = /«[^»]*»|“[^”]*”|"[^"\n]*"|'[^'\n]*'|`[^`\n]*`|https?:\/\/[^\s]+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/gu;
+    const NUMBERS = /[+-]?[0-9۰-۹٠-٩]+(?:[.,٬٫][0-9۰-۹٠-٩]+)*/gu;
+    const LATIN = /\b[A-Za-z][A-Za-z0-9_-]*\b/g;
+    const NEGATION = /(?:^|[^\p{L}])(?:نمی[\u200c ]?[\p{L}]+|نخواهد|نیست|نبود|نشد|نکرد[\p{L}]*|نباید|هرگز|بدون|هیچ|نه)(?=$|[^\p{L}])/gu;
+    function blocks(text) {
+        return Array.from(text.matchAll(QUOTED), m => ({ start: m.index || 0, end: (m.index || 0) + m[0].length }));
+    }
+    function intersects(a, b, items) {
+        return items.some(x => a < x.end && b > x.start);
+    }
+    function invariants(text) {
+        const sorted = (items) => items.sort();
+        return {
+            numbers: sorted(text.match(NUMBERS) || []),
+            latin: sorted(text.match(LATIN) || []),
+            quotes: Array.from(text.matchAll(QUOTED), m => m[0]),
+            negations: sorted((text.match(NEGATION) || []).map(x => x.replace(/[\s\u200c]/gu, '')))
+        };
+    }
+    function review(original, revision) {
+        const warnings = [];
+        if (!original.trim() || !revision.trim())
+            warnings.push('متن ورودی یا خروجی خالی است.');
+        const a = invariants(original), b = invariants(revision);
+        if (JSON.stringify(a.numbers) !== JSON.stringify(b.numbers))
+            warnings.push('عدد یا مقدار در بازنویسی تغییر کرده است.');
+        if (JSON.stringify(a.latin) !== JSON.stringify(b.latin))
+            warnings.push('یک نام یا عبارت لاتین تغییر کرده است.');
+        if (JSON.stringify(a.quotes) !== JSON.stringify(b.quotes))
+            warnings.push('نقل‌قول، آدرس یا متن محافظت‌شده تغییر کرده است.');
+        if (JSON.stringify(a.negations) !== JSON.stringify(b.negations))
+            warnings.push('ساختار نفی تغییر کرده است؛ معنا را دستی بررسی کنید.');
+        const originalWords = original.trim().split(/\s+/u).length;
+        const revisionWords = revision.trim().split(/\s+/u).length;
+        if (originalWords > 9 && Math.abs(revisionWords - originalWords) / originalWords > .30)
+            warnings.push('طول متن بیش از ۳۰٪ تغییر کرده و باید از نظر حذف اطلاعات بررسی شود.');
+        return { ok: warnings.length === 0, warnings };
+    }
+    NevisRewrite.review = review;
+    function rewrite(text, strength = 45, origin = 'unknown') {
+        if (!Number.isFinite(strength) || strength < 0 || strength > 100)
+            throw new RangeError('شدت بازنویسی باید عددی بین صفر و صد باشد.');
+        const original = text.slice(0, 40000);
+        const protectedBlocks = blocks(original);
+        const candidates = [];
+        for (const rule of RULES) {
+            const escaped = rule.before.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp('(^|[^' + lexicalWord.slice(1, -1) + '])(' + escaped + ')(?=$|[^' + lexicalWord.slice(1, -1) + '])', 'gu');
+            for (const m of original.matchAll(pattern)) {
+                const start = (m.index || 0) + m[1].length, end = start + m[2].length;
+                // Never alter literal quotations, URLs, code, identifiers or negated verbs.
+                if (intersects(start, end, protectedBlocks))
+                    continue;
+                if (start > 0 && /[ن]/u.test(original[start - 1]) && /^می/u.test(rule.before))
+                    continue;
+                candidates.push({ before: m[2], after: rule.after, start, end, reason: rule.reason });
+            }
+        }
+        // Stable original-order selection; longer competing phrases take precedence.
+        candidates.sort((a, b) => a.start - b.start || b.end - a.end);
+        const clean = [];
+        for (const item of candidates)
+            if (!intersects(item.start, item.end, clean))
+                clean.push(item);
+        const limit = strength === 0 ? 0 : Math.max(1, Math.round(clean.length * strength / 100));
+        // Choose spaced occurrences to avoid changing just one paragraph in longer texts.
+        const selected = [];
+        for (let i = 0; i < limit; i++) {
+            const idx = Math.min(clean.length - 1, Math.floor((i + .5) * clean.length / limit));
+            if (clean[idx])
+                selected.push(clean[idx]);
+        }
+        let next = original;
+        for (const edit of selected.slice().reverse()) {
+            next = next.slice(0, edit.start) + edit.after + next.slice(edit.end);
+        }
+        const quality = review(original, next);
+        if (!quality.ok)
+            next = original;
+        return { original, text: next, style: 'professional-natural', strength, changes: quality.ok ? selected : [],
+            candidates: clean.length, review: quality, provenance: { originalOrigin: origin,
+                transformation: 'local-rule-based', aiModelUsed: false, authorshipClaim: false } };
+    }
+    NevisRewrite.rewrite = rewrite;
+})(NevisRewrite || (NevisRewrite = {}));
 /** React + TypeScript UI. Compiled to a single, offline-friendly browser script. */
 var NevisApp;
 (function (NevisApp) {
@@ -1037,7 +1161,7 @@ var NevisApp;
                 this.setState({ models, modelStatus: count ? `${count.toLocaleString('fa-IR')} مدل آماده تحلیل است` : 'مدل منشأ متن برای این زبان هنوز منتشر نشده است.' });
             };
             this.setText = (value) => {
-                this.setState({ text: value.slice(0, 40000), isStale: true, activeId: null, message: '' });
+                this.setState({ text: value.slice(0, 40000), isStale: true, activeId: null, message: '', rewriteResult: null, rewriteDraft: '', rewriteConfirmed: false });
             };
             this.analyzeNow = () => {
                 const report = NevisEngine.analyze(this.state.text);
@@ -1045,7 +1169,7 @@ var NevisApp;
             };
             this.useSample = (kind) => {
                 const text = kind === 'template' ? TEMPLATE_SAMPLE : NATURAL_SAMPLE;
-                this.setState({ text, report: NevisEngine.analyze(text), activeId: null, tab: 'all', isStale: false, message: '' });
+                this.setState({ text, report: NevisEngine.analyze(text), activeId: null, tab: 'all', isStale: false, message: '', rewriteResult: null, rewriteDraft: '', rewriteConfirmed: false, rewriteAdopted: false, rewriteLineage: null });
             };
             this.updateReference = (value) => {
                 this.setState({ referenceText: value.slice(0, 40000), referenceStale: true });
@@ -1086,7 +1210,7 @@ var NevisApp;
                 reader.onload = () => {
                     const source = String(reader.result || '').replace(/^\uFEFF/, '');
                     const text = source.slice(0, 40000);
-                    this.setState({ text, report: NevisEngine.analyze(text), isStale: false, activeId: null, tab: 'all', message: source.length > 40000 ? 'فقط ۴۰ هزار نویسه اول فایل بررسی شد.' : `فایل «${file.name}» در مرورگر خوانده شد.` });
+                    this.setState({ text, report: NevisEngine.analyze(text), isStale: false, activeId: null, tab: 'all', message: source.length > 40000 ? 'فقط ۴۰ هزار نویسه اول فایل بررسی شد.' : `فایل «${file.name}» در مرورگر خوانده شد.`, rewriteResult: null, rewriteDraft: '', rewriteConfirmed: false, rewriteAdopted: false, rewriteLineage: null });
                 };
                 reader.onerror = () => this.setState({ message: 'خواندن فایل موفق نبود. دوباره تلاش کنید.' });
                 reader.readAsText(file, 'UTF-8');
@@ -1109,8 +1233,8 @@ var NevisApp;
                 const { index: _internalLegacyIndex, ...exportReport } = report;
                 const content = type === 'json' ? JSON.stringify({
                     application: 'NevisSanj', version: '2.5.0', disclaimer: 'Not an AI authorship probability',
-                    createdAt: new Date().toISOString(), report: exportReport, modelAssessment: NevisEngine.publishedPredict(report.text, this.state.models[report.language === 'fa' || report.language === 'en' ? report.language : 'fa'])
-                }, null, 2) : NevisEngine.createReadableReport(report);
+                    createdAt: new Date().toISOString(), report: exportReport, rewriteProvenance: this.state.rewriteLineage, modelAssessment: NevisEngine.publishedPredict(report.text, this.state.models[report.language === 'fa' || report.language === 'en' ? report.language : 'fa'])
+                }, null, 2) : NevisEngine.createReadableReport(report) + (this.state.rewriteLineage ? '\n\nیادداشت منشأ: متن با موتور ویرایش قاعده‌محور اصلاح شده؛ منشأ اولیه ' + (this.state.rewriteLineage.originalOrigin === 'ai' ? 'طبق اعلام کاربر AI بوده است.' : this.state.rewriteLineage.originalOrigin === 'human' ? 'طبق اعلام کاربر انسانی بوده است.' : 'نامشخص است.') : '');
                 const blob = new Blob([content], { type: type === 'json' ? 'application/json;charset=utf-8' : 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1123,12 +1247,49 @@ var NevisApp;
             };
             this.copySummary = async () => {
                 try {
-                    await navigator.clipboard.writeText(NevisEngine.createReadableReport(this.state.report));
+                    await navigator.clipboard.writeText(NevisEngine.createReadableReport(this.state.report) + (this.state.rewriteLineage ? '\n\nاین متن با ابزار ویرایش شده و منشأ اولیه تغییر نکرده است.' : ''));
                     this.setState({ message: 'گزارش در کلیپ‌بورد کپی شد.' });
                 }
                 catch (_err) {
                     this.setState({ message: 'کپی خودکار ممکن نیست؛ از گزینه دانلود گزارش استفاده کنید.' });
                 }
+            };
+            this.runRewrite = () => {
+                const { text, rewriteStrength, rewriteOrigin } = this.state;
+                if (!/[آ-ی؀-ۿ]/u.test(text)) {
+                    this.setState({ message: 'بازنویسی نسخه اول فقط برای متن فارسی در دسترس است.' });
+                    return;
+                }
+                const result = NevisRewrite.rewrite(text, rewriteStrength, rewriteOrigin);
+                this.setState({ rewriteResult: result, rewriteDraft: result.text, rewriteConfirmed: false, message: '' });
+            };
+            this.updateRewriteDraft = (value) => {
+                this.setState({ rewriteDraft: value.slice(0, 40000), rewriteConfirmed: false });
+            };
+            this.applyRewrite = () => {
+                const { rewriteResult, rewriteDraft, rewriteConfirmed } = this.state;
+                if (!rewriteResult || !rewriteConfirmed || !NevisRewrite.review(rewriteResult.original, rewriteDraft).ok)
+                    return;
+                this.setState({ text: rewriteDraft, report: NevisEngine.analyze(rewriteDraft),
+                    isStale: false, activeId: null, tab: 'all', rewriteAdopted: true,
+                    message: 'متن ویرایش‌شده جایگزین شد؛ منشأ اولیه به متن انسانی تبدیل نشده است.', rewriteLineage: rewriteResult.provenance });
+            };
+            this.exportRewrite = () => {
+                const { rewriteResult, rewriteDraft, rewriteConfirmed } = this.state;
+                if (!rewriteResult || !rewriteConfirmed)
+                    return;
+                const quality = NevisRewrite.review(rewriteResult.original, rewriteDraft);
+                if (!quality.ok)
+                    return;
+                this.downloadContent(JSON.stringify({
+                    application: 'NevisSanj', version: 'rewrite-mvp-1',
+                    original: rewriteResult.original, revised: rewriteDraft,
+                    style: rewriteResult.style, strength: rewriteResult.strength,
+                    changes: rewriteResult.changes, quality,
+                    provenance: rewriteResult.provenance,
+                    humanReviewed: true, manuallyEdited: rewriteDraft !== rewriteResult.text,
+                    notice: 'ویرایش با کمک ابزار، نه اثبات نویسندگی انسان یا تغییر منشأ AI'
+                }, null, 2), 'nevis-sanj-rewrite.json', 'application/json');
             };
             this.setActive = (id) => {
                 this.setState({ activeId: id });
@@ -1145,7 +1306,8 @@ var NevisApp;
             const text = TEMPLATE_SAMPLE;
             const models = { fa: null, en: null };
             this.state = { text, report: NevisEngine.analyze(text), activeId: null, theme, message: '', tab: 'all', isStale: false,
-                referenceText: '', referenceStyle: null, referenceStale: false, models, modelStatus: 'در حال بررسی مدل‌ها...' };
+                referenceText: '', referenceStyle: null, referenceStale: false, models, modelStatus: 'در حال بررسی مدل‌ها...',
+                rewriteStrength: 45, rewriteOrigin: 'unknown', rewriteResult: null, rewriteDraft: '', rewriteConfirmed: false, rewriteAdopted: false, rewriteLineage: null };
             this.applyTheme(theme);
         }
         componentDidMount() { this.loadPublishedModels(); }
@@ -1193,7 +1355,8 @@ var NevisApp;
             return segments;
         }
         render() {
-            const { text, report, activeId, theme, message, tab, isStale, referenceText, referenceStyle, referenceStale, models, modelStatus } = this.state;
+            const { text, report, activeId, theme, message, tab, isStale, referenceText, referenceStyle, referenceStale, models, modelStatus, rewriteStrength, rewriteOrigin, rewriteResult, rewriteDraft, rewriteConfirmed, rewriteAdopted, rewriteLineage } = this.state;
+            const rewriteQuality = rewriteResult ? NevisRewrite.review(rewriteResult.original, rewriteDraft) : null;
             const comparison = referenceStyle && !referenceStale && !isStale ? NevisEngine.compareStyleProfiles(report.style, referenceStyle) : null;
             const findings = report.findings.filter(f => tab === 'all' || f.severity !== 'low');
             const active = report.findings.find(f => f.id === activeId) || null;
@@ -1213,6 +1376,7 @@ var NevisApp;
                                 React.createElement("small", null, "\u062A\u062D\u0644\u06CC\u0644 \u0647\u0648\u0634\u0645\u0646\u062F \u0633\u0628\u06A9 \u0646\u0648\u0634\u062A\u0627\u0631"))),
                         React.createElement("nav", { className: "nav-links", "aria-label": "\u067E\u06CC\u0648\u0646\u062F\u0647\u0627\u06CC \u0635\u0641\u062D\u0647" },
                             React.createElement("a", { href: "#workspace", className: "nav-current" }, "\u0622\u0632\u0645\u0627\u06CC\u0634 \u0645\u062A\u0646"),
+                            React.createElement("a", { href: "#natural-rewrite" }, "\u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC \u0641\u0627\u0631\u0633\u06CC"),
                             React.createElement("a", { href: "#method" }, "\u0631\u0648\u0634 \u062A\u062D\u0644\u06CC\u0644"),
                             React.createElement("a", { href: "#limitations" }, "\u0645\u062D\u062F\u0648\u062F\u06CC\u062A\u200C\u0647\u0627")),
                         React.createElement("div", { className: "header-actions" },
@@ -1394,6 +1558,81 @@ var NevisApp;
                                         " JSON"),
                                     React.createElement("button", { type: "button", onClick: this.copySummary, disabled: isStale || !hasText, "aria-label": "\u06A9\u067E\u06CC \u06AF\u0632\u0627\u0631\u0634", title: "\u06A9\u067E\u06CC \u06AF\u0632\u0627\u0631\u0634" },
                                         React.createElement(Icon, { name: "clipboard", size: 17 })))))),
+                    React.createElement("section", { className: "rewrite-section", id: "natural-rewrite", "aria-label": "\u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC \u0637\u0628\u06CC\u0639\u06CC \u0645\u062A\u0646 \u0641\u0627\u0631\u0633\u06CC" },
+                        React.createElement("div", { className: "section-heading compact" },
+                            React.createElement("div", null,
+                                React.createElement("span", { className: "section-number" }, "02 /"),
+                                React.createElement("h2", null, "\u0648\u06CC\u0631\u0627\u06CC\u0634 \u0648 \u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC \u0637\u0628\u06CC\u0639\u06CC \u0641\u0627\u0631\u0633\u06CC"),
+                                React.createElement("p", null, "\u067E\u06CC\u0634\u200C\u0646\u0645\u0627\u06CC\u0634 \u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC \u0628\u0627 \u062D\u0641\u0638 \u0645\u062D\u062A\u0648\u0627 \u0648 \u0627\u0645\u06A9\u0627\u0646 \u0628\u0631\u0631\u0633\u06CC \u062A\u0641\u0627\u0648\u062A\u200C\u0647\u0627\u061B \u0645\u0633\u062A\u0642\u0644 \u0627\u0632 \u0645\u0648\u062A\u0648\u0631 \u062A\u0634\u062E\u06CC\u0635.")),
+                            React.createElement("div", { className: "section-hint" },
+                                React.createElement(Icon, { name: "lock", size: 16 }),
+                                " \u067E\u0631\u062F\u0627\u0632\u0634 \u0641\u0642\u0637 \u062F\u0631 \u0645\u0631\u0648\u0631\u06AF\u0631")),
+                        React.createElement("div", { className: "rewrite-panel panel" },
+                            React.createElement("div", { className: "rewrite-config" },
+                                React.createElement("div", { className: "rewrite-fields" },
+                                    React.createElement("label", null,
+                                        "\u0633\u0628\u06A9 \u0646\u06AF\u0627\u0631\u0634",
+                                        React.createElement("select", { value: "professional-natural", disabled: true, "aria-label": "\u0633\u0628\u06A9 \u0646\u06AF\u0627\u0631\u0634 \u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC" },
+                                            React.createElement("option", { value: "professional-natural" }, "\u062D\u0631\u0641\u0647\u200C\u0627\u06CC \u0648 \u0637\u0628\u06CC\u0639\u06CC (\u0646\u0633\u062E\u0647 \u0627\u0648\u0644)"))),
+                                    React.createElement("label", null,
+                                        "\u0645\u0646\u0634\u0623 \u0645\u062A\u0646 \u0627\u0648\u0644\u06CC\u0647",
+                                        React.createElement("select", { value: rewriteOrigin, onChange: (e) => this.setState({ rewriteOrigin: e.target.value, rewriteResult: null, rewriteConfirmed: false }) },
+                                            React.createElement("option", { value: "unknown" }, "\u0646\u0627\u0645\u0634\u062E\u0635"),
+                                            React.createElement("option", { value: "ai" }, "\u062A\u0648\u0644\u06CC\u062F\u0634\u062F\u0647 \u0628\u0627 AI (\u0627\u0639\u0644\u0627\u0645 \u06A9\u0627\u0631\u0628\u0631)"),
+                                            React.createElement("option", { value: "human" }, "\u0627\u0646\u0633\u0627\u0646\u06CC (\u0627\u0639\u0644\u0627\u0645 \u06A9\u0627\u0631\u0628\u0631)")))),
+                                React.createElement("label", { className: "rewrite-slider" },
+                                    "\u0634\u062F\u062A \u0648\u06CC\u0631\u0627\u06CC\u0634: ",
+                                    React.createElement("strong", null,
+                                        shortNumber(rewriteStrength),
+                                        "\u066A"),
+                                    React.createElement("input", { type: "range", min: 0, max: 100, step: 5, value: rewriteStrength, onChange: (e) => this.setState({ rewriteStrength: Number(e.target.value), rewriteResult: null, rewriteConfirmed: false }) }),
+                                    React.createElement("span", null, "\u0627\u06CC\u0646 \u062F\u0631\u0635\u062F \u0633\u0647\u0645 \u062A\u0642\u0631\u06CC\u0628\u06CC \u0642\u0648\u0627\u0639\u062F \u0642\u0627\u0628\u0644\u200C\u0627\u0639\u0645\u0627\u0644 \u0627\u0633\u062A\u060C \u0646\u0647 \u062F\u0631\u0635\u062F \u062A\u063A\u06CC\u06CC\u0631 \u0648\u0627\u0698\u06AF\u0627\u0646 \u06CC\u0627 \u062A\u0636\u0645\u06CC\u0646 \u0627\u0646\u0633\u0627\u0646\u06CC\u200C\u0628\u0648\u062F\u0646.")),
+                                React.createElement("button", { className: "primary-button", type: "button", onClick: this.runRewrite, disabled: !hasText },
+                                    React.createElement(Icon, { name: "pen", size: 17 }),
+                                    " \u067E\u06CC\u0634\u0646\u0647\u0627\u062F \u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC")),
+                            React.createElement("p", { className: "rewrite-note" },
+                                React.createElement(Icon, { name: "info", size: 16 }),
+                                " \u0646\u0633\u062E\u0647 \u0627\u0648\u0644\u06CC\u0647 \u0641\u0642\u0637 \u0627\u0635\u0644\u0627\u062D\u200C\u0647\u0627\u06CC \u0645\u062D\u062F\u0648\u062F \u0648 \u0642\u0627\u0628\u0644\u200C\u0631\u062F\u06CC\u0627\u0628\u06CC \u0627\u0646\u062C\u0627\u0645 \u0645\u06CC\u200C\u062F\u0647\u062F\u061B \u0627\u0632 \u0645\u062F\u0644 \u0632\u0628\u0627\u0646\u06CC \u0645\u0648\u0644\u062F \u0627\u0633\u062A\u0641\u0627\u062F\u0647 \u0646\u0645\u06CC\u200C\u06A9\u0646\u062F \u0648 \u0642\u0631\u0627\u0631 \u0646\u06CC\u0633\u062A \u0645\u0646\u0634\u0623 AI \u0631\u0627 \u067E\u0646\u0647\u0627\u0646 \u06A9\u0646\u062F."),
+                            rewriteResult && React.createElement("div", { className: "rewrite-preview", "aria-live": "polite" },
+                                React.createElement("div", { className: "rewrite-columns" },
+                                    React.createElement("div", null,
+                                        React.createElement("h3", null, "\u0645\u062A\u0646 \u0627\u0648\u0644\u06CC\u0647"),
+                                        React.createElement("div", { className: "rewrite-original", dir: "rtl" }, rewriteResult.original)),
+                                    React.createElement("div", null,
+                                        React.createElement("label", { htmlFor: "rewrite-draft" }, "\u067E\u06CC\u0634\u0646\u0647\u0627\u062F \u0642\u0627\u0628\u0644\u200C\u0648\u06CC\u0631\u0627\u06CC\u0634"),
+                                        React.createElement("textarea", { id: "rewrite-draft", dir: "rtl", value: rewriteDraft, onChange: (e) => this.updateRewriteDraft(e.target.value), "aria-label": "\u0646\u0633\u062E\u0647 \u0642\u0627\u0628\u0644 \u0628\u0627\u0632\u0628\u06CC\u0646\u06CC \u0628\u0627\u0632\u0646\u0648\u06CC\u0633\u06CC" }))),
+                                React.createElement("p", { className: "muted rewrite-count" },
+                                    shortNumber(rewriteResult.changes.length),
+                                    " \u062A\u063A\u06CC\u06CC\u0631 \u0627\u0632 ",
+                                    shortNumber(rewriteResult.candidates),
+                                    " \u0641\u0631\u0635\u062A \u0634\u0646\u0627\u0633\u0627\u06CC\u06CC\u200C\u0634\u062F\u0647 \u00B7 \u0645\u0646\u0634\u0623 \u0627\u0648\u0644\u06CC\u0647: ",
+                                    rewriteOrigin === 'ai' ? 'طبق اعلام کاربر: AI' : rewriteOrigin === 'human' ? 'طبق اعلام کاربر: انسانی' : 'نامشخص'),
+                                rewriteDraft !== rewriteResult.text && React.createElement("p", { className: "rewrite-note", role: "status" }, "\u0645\u062A\u0646 \u067E\u06CC\u0634\u0646\u0647\u0627\u062F\u0634\u062F\u0647 \u0631\u0648 \u062F\u0633\u062A\u06CC \u0648\u06CC\u0631\u0627\u06CC\u0634 \u06A9\u0631\u062F\u06CC\u061B \u0641\u0647\u0631\u0633\u062A \u062A\u063A\u06CC\u06CC\u0631\u0627\u062A \u0632\u06CC\u0631 \u0641\u0642\u0637 \u0645\u0631\u0628\u0648\u0637 \u0628\u0647 \u067E\u06CC\u0634\u0646\u0647\u0627\u062F \u0627\u0648\u0644\u06CC\u0647 \u0645\u0648\u062A\u0648\u0631 \u0627\u0633\u062A."),
+                                rewriteResult.changes.length > 0 && React.createElement("details", { className: "rewrite-diff" },
+                                    React.createElement("summary", null, "\u0646\u0645\u0627\u06CC\u0634 \u062A\u063A\u06CC\u06CC\u0631\u0627\u062A \u0648 \u062F\u0644\u06CC\u0644 \u0647\u0631 \u062A\u063A\u06CC\u06CC\u0631"),
+                                    rewriteResult.changes.map((item, i) => React.createElement("div", { key: i },
+                                        React.createElement("del", null, item.before),
+                                        React.createElement("span", null, "\u2190"),
+                                        React.createElement("ins", null, item.after),
+                                        React.createElement("small", null, item.reason)))),
+                                !rewriteResult.changes.length && React.createElement("p", { className: "rewrite-note" }, "\u062F\u0631 \u0627\u06CC\u0646 \u0645\u062A\u0646 \u0628\u0627 \u0642\u0648\u0627\u0639\u062F \u0645\u062D\u0627\u0641\u0638\u0647\u200C\u06A9\u0627\u0631 \u0641\u0639\u0644\u06CC \u062C\u0627\u06CC\u06AF\u0632\u06CC\u0646\u06CC \u0645\u0646\u0627\u0633\u0628\u06CC \u067E\u06CC\u062F\u0627 \u0646\u0634\u062F. \u0645\u062A\u0646 \u0628\u062F\u0648\u0646 \u062A\u063A\u06CC\u06CC\u0631 \u0628\u0627\u0642\u06CC \u0645\u0627\u0646\u062F\u0647 \u0627\u0633\u062A."),
+                                React.createElement("div", { className: "rewrite-quality" },
+                                    React.createElement("strong", null, rewriteQuality?.ok ? 'کنترل‌های اولیه بدون هشدار' : 'بازبینی لازم است'),
+                                    rewriteQuality?.warnings.map((warning, i) => React.createElement("p", { key: i, role: "alert" }, warning)),
+                                    React.createElement("p", null, "\u06A9\u0646\u062A\u0631\u0644 \u0639\u062F\u062F\u060C \u0646\u0627\u0645 \u0644\u0627\u062A\u06CC\u0646\u060C \u0646\u0642\u0644\u200C\u0642\u0648\u0644 \u0648 \u0646\u0641\u06CC \u0628\u0647\u200C\u0645\u0639\u0646\u06CC \u062A\u0636\u0645\u06CC\u0646 \u062D\u0641\u0638 \u0645\u0641\u0647\u0648\u0645 \u0646\u06CC\u0633\u062A\u061B \u062A\u063A\u06CC\u06CC\u0631\u0627\u062A \u0631\u0627 \u062E\u0648\u062F\u062A \u0628\u0631\u0631\u0633\u06CC \u06A9\u0646.")),
+                                React.createElement("label", { className: "rewrite-confirm" },
+                                    React.createElement("input", { type: "checkbox", checked: rewriteConfirmed, disabled: !rewriteQuality?.ok, onChange: (e) => this.setState({ rewriteConfirmed: e.target.checked }) }),
+                                    "\u0645\u062A\u0646 \u0648 \u0645\u0639\u0646\u06CC \u0622\u0646 \u0631\u0627 \u0628\u0631\u0631\u0633\u06CC \u06A9\u0631\u062F\u0645 \u0648 \u0645\u06CC\u200C\u062F\u0627\u0646\u0645 \u0648\u06CC\u0631\u0627\u06CC\u0634\u060C \u0645\u0646\u0634\u0623 \u0646\u0648\u0634\u062A\u0647 \u0631\u0627 \u0627\u0646\u0633\u0627\u0646\u06CC \u0646\u0645\u06CC\u200C\u06A9\u0646\u062F."),
+                                React.createElement("div", { className: "rewrite-actions" },
+                                    React.createElement("button", { type: "button", className: "primary-button", disabled: !rewriteConfirmed || !rewriteQuality?.ok, onClick: this.applyRewrite }, "\u062C\u0627\u06CC\u06AF\u0632\u06CC\u0646\u200C\u06A9\u0631\u062F\u0646 \u062F\u0631 \u062A\u062D\u0644\u06CC\u0644"),
+                                    React.createElement("button", { type: "button", className: "small-button", disabled: !rewriteConfirmed || !rewriteQuality?.ok, onClick: this.exportRewrite },
+                                        React.createElement(Icon, { name: "download", size: 16 }),
+                                        " \u062F\u0631\u06CC\u0627\u0641\u062A JSON \u0647\u0645\u0631\u0627\u0647 \u0628\u0627 \u0645\u0646\u0634\u0623"))),
+                            rewriteAdopted && React.createElement("p", { className: "rewrite-note" },
+                                React.createElement(Icon, { name: "shield", size: 16 }),
+                                " \u0645\u062A\u0646 \u0641\u0639\u0644\u06CC \u0628\u0627 \u0627\u0628\u0632\u0627\u0631 \u0648\u06CC\u0631\u0627\u06CC\u0634 \u0634\u062F\u0647 \u0627\u0633\u062A\u061B \u0645\u0646\u0634\u0623 \u0627\u0648\u0644\u06CC\u0647 ",
+                                rewriteLineage?.originalOrigin === 'ai' ? 'طبق اعلام کاربر AI است' : rewriteLineage?.originalOrigin === 'human' ? 'طبق اعلام کاربر انسانی است' : 'نامشخص است',
+                                " \u0648 \u0627\u06CC\u0646 \u0648\u06CC\u0631\u0627\u06CC\u0634 \u0627\u062F\u0639\u0627\u06CC\u06CC \u062F\u0631\u0628\u0627\u0631\u0647 \u0646\u0648\u06CC\u0633\u0646\u062F\u0647 \u0627\u0646\u0633\u0627\u0646\u06CC \u0627\u06CC\u062C\u0627\u062F \u0646\u0645\u06CC\u200C\u06A9\u0646\u062F."))),
                     React.createElement("section", { className: "findings-section", "aria-label": "\u06CC\u0627\u0641\u062A\u0647\u200C\u0647\u0627" },
                         React.createElement("div", { className: "section-heading compact" },
                             React.createElement("div", null,

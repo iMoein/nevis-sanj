@@ -57,6 +57,13 @@ namespace NevisApp {
     referenceStale: boolean;
     models: { fa: NevisEngine.PublishedModel | null; en: NevisEngine.PublishedModel | null };
     modelStatus: string;
+    rewriteStrength: number;
+    rewriteOrigin: NevisRewrite.Origin;
+    rewriteResult: NevisRewrite.Result | null;
+    rewriteDraft: string;
+    rewriteConfirmed: boolean;
+    rewriteAdopted: boolean;
+    rewriteLineage: NevisRewrite.Result['provenance'] | null;
   };
   const LANG_LABEL: Record<NevisEngine.Language, string> = { fa: 'فارسی', en: 'انگلیسی', mixed: 'ترکیبی', unknown: 'نامشخص' };
   const CATEGORY_LABEL: Record<NevisEngine.Category, string> = {
@@ -82,7 +89,8 @@ namespace NevisApp {
       const text = TEMPLATE_SAMPLE;
       const models: {fa:NevisEngine.PublishedModel|null;en:NevisEngine.PublishedModel|null}={fa:null,en:null};
       this.state={text,report:NevisEngine.analyze(text),activeId:null,theme,message:'',tab:'all',isStale:false,
-        referenceText:'',referenceStyle:null,referenceStale:false,models,modelStatus:'در حال بررسی مدل‌ها...'};
+        referenceText:'',referenceStyle:null,referenceStale:false,models,modelStatus:'در حال بررسی مدل‌ها...',
+        rewriteStrength:45,rewriteOrigin:'unknown',rewriteResult:null,rewriteDraft:'',rewriteConfirmed:false,rewriteAdopted:false,rewriteLineage:null};
       this.applyTheme(theme);
     }
     componentDidMount() { this.loadPublishedModels(); }
@@ -106,7 +114,7 @@ namespace NevisApp {
     }
     private applyTheme(theme: 'light' | 'dark') { document.documentElement.setAttribute('data-theme', theme); }
     private setText = (value: string) => {
-      this.setState({ text: value.slice(0, 40000), isStale: true, activeId: null, message: '' });
+      this.setState({ text: value.slice(0, 40000), isStale: true, activeId: null, message: '',rewriteResult:null,rewriteDraft:'',rewriteConfirmed:false });
     };
     private analyzeNow = () => {
       const report = NevisEngine.analyze(this.state.text);
@@ -114,7 +122,7 @@ namespace NevisApp {
     };
     private useSample = (kind: 'template' | 'natural') => {
       const text = kind === 'template' ? TEMPLATE_SAMPLE : NATURAL_SAMPLE;
-      this.setState({ text, report: NevisEngine.analyze(text), activeId: null, tab: 'all', isStale: false, message: '' });
+      this.setState({ text, report: NevisEngine.analyze(text), activeId: null, tab: 'all', isStale: false, message: '',rewriteResult:null,rewriteDraft:'',rewriteConfirmed:false,rewriteAdopted:false,rewriteLineage:null });
     };
     private updateReference = (value: string) => {
       this.setState({ referenceText: value.slice(0, 40000), referenceStale: true });
@@ -148,7 +156,7 @@ namespace NevisApp {
       reader.onload = () => {
         const source = String(reader.result || '').replace(/^\uFEFF/, '');
         const text = source.slice(0, 40000);
-        this.setState({ text, report: NevisEngine.analyze(text), isStale: false, activeId: null, tab: 'all', message: source.length > 40000 ? 'فقط ۴۰ هزار نویسه اول فایل بررسی شد.' : `فایل «${file.name}» در مرورگر خوانده شد.` });
+        this.setState({ text, report: NevisEngine.analyze(text), isStale: false, activeId: null, tab: 'all', message: source.length > 40000 ? 'فقط ۴۰ هزار نویسه اول فایل بررسی شد.' : `فایل «${file.name}» در مرورگر خوانده شد.`,rewriteResult:null,rewriteDraft:'',rewriteConfirmed:false,rewriteAdopted:false,rewriteLineage:null });
       };
       reader.onerror = () => this.setState({ message: 'خواندن فایل موفق نبود. دوباره تلاش کنید.' });
       reader.readAsText(file, 'UTF-8');
@@ -168,8 +176,8 @@ namespace NevisApp {
       const { index: _internalLegacyIndex, ...exportReport } = report;
       const content = type === 'json' ? JSON.stringify({
         application: 'NevisSanj', version: '2.5.0', disclaimer: 'Not an AI authorship probability',
-        createdAt: new Date().toISOString(), report: exportReport, modelAssessment: NevisEngine.publishedPredict(report.text, this.state.models[report.language === 'fa' || report.language === 'en' ? report.language : 'fa'])
-      }, null, 2) : NevisEngine.createReadableReport(report);
+        createdAt: new Date().toISOString(), report: exportReport, rewriteProvenance:this.state.rewriteLineage, modelAssessment: NevisEngine.publishedPredict(report.text, this.state.models[report.language === 'fa' || report.language === 'en' ? report.language : 'fa'])
+      }, null, 2) : NevisEngine.createReadableReport(report)+(this.state.rewriteLineage?'\n\nیادداشت منشأ: متن با موتور ویرایش قاعده‌محور اصلاح شده؛ منشأ اولیه '+(this.state.rewriteLineage.originalOrigin==='ai'?'طبق اعلام کاربر AI بوده است.':this.state.rewriteLineage.originalOrigin==='human'?'طبق اعلام کاربر انسانی بوده است.':'نامشخص است.'):'');
       const blob = new Blob([content], { type: type === 'json' ? 'application/json;charset=utf-8' : 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -182,9 +190,42 @@ namespace NevisApp {
     };
     private copySummary = async () => {
       try {
-        await navigator.clipboard.writeText(NevisEngine.createReadableReport(this.state.report));
+        await navigator.clipboard.writeText(NevisEngine.createReadableReport(this.state.report)+(this.state.rewriteLineage?'\n\nاین متن با ابزار ویرایش شده و منشأ اولیه تغییر نکرده است.':''));
         this.setState({ message: 'گزارش در کلیپ‌بورد کپی شد.' });
       } catch (_err) { this.setState({ message: 'کپی خودکار ممکن نیست؛ از گزینه دانلود گزارش استفاده کنید.' }); }
+    };
+    private runRewrite = () => {
+      const {text,rewriteStrength,rewriteOrigin}=this.state;
+      if(!/[آ-ی؀-ۿ]/u.test(text)){
+        this.setState({message:'بازنویسی نسخه اول فقط برای متن فارسی در دسترس است.'});return;
+      }
+      const result=NevisRewrite.rewrite(text,rewriteStrength,rewriteOrigin);
+      this.setState({rewriteResult:result,rewriteDraft:result.text,rewriteConfirmed:false,message:''});
+    };
+    private updateRewriteDraft = (value:string) => {
+      this.setState({rewriteDraft:value.slice(0,40000),rewriteConfirmed:false});
+    };
+    private applyRewrite = () => {
+      const {rewriteResult,rewriteDraft,rewriteConfirmed}=this.state;
+      if(!rewriteResult||!rewriteConfirmed||!NevisRewrite.review(rewriteResult.original,rewriteDraft).ok)return;
+      this.setState({text:rewriteDraft,report:NevisEngine.analyze(rewriteDraft),
+        isStale:false,activeId:null,tab:'all',rewriteAdopted:true,
+        message:'متن ویرایش‌شده جایگزین شد؛ منشأ اولیه به متن انسانی تبدیل نشده است.',rewriteLineage:rewriteResult.provenance});
+    };
+    private exportRewrite = () => {
+      const {rewriteResult,rewriteDraft,rewriteConfirmed}=this.state;
+      if(!rewriteResult||!rewriteConfirmed)return;
+      const quality=NevisRewrite.review(rewriteResult.original,rewriteDraft);
+      if(!quality.ok)return;
+      this.downloadContent(JSON.stringify({
+        application:'NevisSanj',version:'rewrite-mvp-1',
+        original:rewriteResult.original,revised:rewriteDraft,
+        style:rewriteResult.style,strength:rewriteResult.strength,
+        changes:rewriteResult.changes,quality,
+        provenance:rewriteResult.provenance,
+        humanReviewed:true,manuallyEdited:rewriteDraft!==rewriteResult.text,
+        notice:'ویرایش با کمک ابزار، نه اثبات نویسندگی انسان یا تغییر منشأ AI'
+      },null,2),'nevis-sanj-rewrite.json','application/json');
     };
     private setActive = (id: string) => {
       this.setState({ activeId: id });
@@ -217,7 +258,9 @@ namespace NevisApp {
     }
 
     render(): any {
-      const { text, report, activeId, theme, message, tab, isStale, referenceText, referenceStyle, referenceStale, models, modelStatus } = this.state;
+      const { text, report, activeId, theme, message, tab, isStale, referenceText, referenceStyle, referenceStale, models, modelStatus,
+        rewriteStrength,rewriteOrigin,rewriteResult,rewriteDraft,rewriteConfirmed,rewriteAdopted,rewriteLineage } = this.state;
+      const rewriteQuality=rewriteResult?NevisRewrite.review(rewriteResult.original,rewriteDraft):null;
       const comparison = referenceStyle && !referenceStale && !isStale ? NevisEngine.compareStyleProfiles(report.style, referenceStyle) : null;
       const findings = report.findings.filter(f => tab === 'all' || f.severity !== 'low');
       const active = report.findings.find(f => f.id === activeId) || null;
@@ -233,7 +276,7 @@ namespace NevisApp {
               <span className="brand-mark"><Icon name="scan" size={23}/></span>
               <span><strong>نویس‌سنج</strong><small>تحلیل هوشمند سبک نوشتار</small></span>
             </a>
-            <nav className="nav-links" aria-label="پیوندهای صفحه"><a href="#workspace" className="nav-current">آزمایش متن</a><a href="#method">روش تحلیل</a><a href="#limitations">محدودیت‌ها</a></nav>
+            <nav className="nav-links" aria-label="پیوندهای صفحه"><a href="#workspace" className="nav-current">آزمایش متن</a><a href="#natural-rewrite">بازنویسی فارسی</a><a href="#method">روش تحلیل</a><a href="#limitations">محدودیت‌ها</a></nav>
             <div className="header-actions"><span className="offline-indicator"><span></span> کاملا محلی</span><button type="button" className="theme-button" onClick={this.toggleTheme} title={theme === 'light' ? 'فعال‌کردن حالت تاریک' : 'فعال‌کردن حالت روشن'} aria-label="تغییر تم"><Icon name={theme === 'light' ? 'moon' : 'sun'} size={19}/></button></div>
           </div>
         </header>
@@ -281,6 +324,55 @@ namespace NevisApp {
             </aside>
           </section>
 
+          <section className="rewrite-section" id="natural-rewrite" aria-label="بازنویسی طبیعی متن فارسی">
+            <div className="section-heading compact"><div><span className="section-number">02 /</span><h2>ویرایش و بازنویسی طبیعی فارسی</h2>
+              <p>پیش‌نمایش بازنویسی با حفظ محتوا و امکان بررسی تفاوت‌ها؛ مستقل از موتور تشخیص.</p></div><div className="section-hint"><Icon name="lock" size={16}/> پردازش فقط در مرورگر</div></div>
+            <div className="rewrite-panel panel">
+              <div className="rewrite-config">
+                <div className="rewrite-fields">
+                  <label>سبک نگارش
+                    <select value="professional-natural" disabled aria-label="سبک نگارش بازنویسی"><option value="professional-natural">حرفه‌ای و طبیعی (نسخه اول)</option></select>
+                  </label>
+                  <label>منشأ متن اولیه
+                    <select value={rewriteOrigin} onChange={(e:any)=>this.setState({rewriteOrigin:e.target.value as NevisRewrite.Origin,rewriteResult:null,rewriteConfirmed:false})}>
+                      <option value="unknown">نامشخص</option><option value="ai">تولیدشده با AI (اعلام کاربر)</option><option value="human">انسانی (اعلام کاربر)</option>
+                    </select>
+                  </label>
+                </div>
+                <label className="rewrite-slider">شدت ویرایش: <strong>{shortNumber(rewriteStrength)}٪</strong>
+                  <input type="range" min={0} max={100} step={5} value={rewriteStrength} onChange={(e:any)=>this.setState({rewriteStrength:Number(e.target.value),rewriteResult:null,rewriteConfirmed:false})}/>
+                  <span>این درصد سهم تقریبی قواعد قابل‌اعمال است، نه درصد تغییر واژگان یا تضمین انسانی‌بودن.</span>
+                </label>
+                <button className="primary-button" type="button" onClick={this.runRewrite} disabled={!hasText}><Icon name="pen" size={17}/> پیشنهاد بازنویسی</button>
+              </div>
+              <p className="rewrite-note"><Icon name="info" size={16}/> نسخه اولیه فقط اصلاح‌های محدود و قابل‌ردیابی انجام می‌دهد؛ از مدل زبانی مولد استفاده نمی‌کند و قرار نیست منشأ AI را پنهان کند.</p>
+              {rewriteResult && <div className="rewrite-preview" aria-live="polite">
+                <div className="rewrite-columns">
+                  <div><h3>متن اولیه</h3><div className="rewrite-original" dir="rtl">{rewriteResult.original}</div></div>
+                  <div><label htmlFor="rewrite-draft">پیشنهاد قابل‌ویرایش</label><textarea id="rewrite-draft" dir="rtl" value={rewriteDraft} onChange={(e:any)=>this.updateRewriteDraft(e.target.value)} aria-label="نسخه قابل بازبینی بازنویسی"/></div>
+                </div>
+                <p className="muted rewrite-count">{shortNumber(rewriteResult.changes.length)} تغییر از {shortNumber(rewriteResult.candidates)} فرصت شناسایی‌شده · منشأ اولیه: {rewriteOrigin==='ai'?'طبق اعلام کاربر: AI':rewriteOrigin==='human'?'طبق اعلام کاربر: انسانی':'نامشخص'}</p>
+                {rewriteDraft!==rewriteResult.text && <p className="rewrite-note" role="status">متن پیشنهادشده رو دستی ویرایش کردی؛ فهرست تغییرات زیر فقط مربوط به پیشنهاد اولیه موتور است.</p>}
+                {rewriteResult.changes.length>0 && <details className="rewrite-diff"><summary>نمایش تغییرات و دلیل هر تغییر</summary>
+                  {rewriteResult.changes.map((item,i)=><div key={i}><del>{item.before}</del><span>←</span><ins>{item.after}</ins><small>{item.reason}</small></div>)}
+                </details>}
+                {!rewriteResult.changes.length && <p className="rewrite-note">در این متن با قواعد محافظه‌کار فعلی جایگزینی مناسبی پیدا نشد. متن بدون تغییر باقی مانده است.</p>}
+                <div className="rewrite-quality">
+                  <strong>{rewriteQuality?.ok?'کنترل‌های اولیه بدون هشدار':'بازبینی لازم است'}</strong>
+                  {rewriteQuality?.warnings.map((warning,i)=><p key={i} role="alert">{warning}</p>)}
+                  <p>کنترل عدد، نام لاتین، نقل‌قول و نفی به‌معنی تضمین حفظ مفهوم نیست؛ تغییرات را خودت بررسی کن.</p>
+                </div>
+                <label className="rewrite-confirm"><input type="checkbox" checked={rewriteConfirmed} disabled={!rewriteQuality?.ok} onChange={(e:any)=>this.setState({rewriteConfirmed:e.target.checked})}/>
+                  متن و معنی آن را بررسی کردم و می‌دانم ویرایش، منشأ نوشته را انسانی نمی‌کند.
+                </label>
+                <div className="rewrite-actions">
+                  <button type="button" className="primary-button" disabled={!rewriteConfirmed||!rewriteQuality?.ok} onClick={this.applyRewrite}>جایگزین‌کردن در تحلیل</button>
+                  <button type="button" className="small-button" disabled={!rewriteConfirmed||!rewriteQuality?.ok} onClick={this.exportRewrite}><Icon name="download" size={16}/> دریافت JSON همراه با منشأ</button>
+                </div>
+              </div>}
+              {rewriteAdopted && <p className="rewrite-note"><Icon name="shield" size={16}/> متن فعلی با ابزار ویرایش شده است؛ منشأ اولیه {rewriteLineage?.originalOrigin==='ai'?'طبق اعلام کاربر AI است':rewriteLineage?.originalOrigin==='human'?'طبق اعلام کاربر انسانی است':'نامشخص است'} و این ویرایش ادعایی درباره نویسنده انسانی ایجاد نمی‌کند.</p>}
+            </div>
+          </section>
           <section className="findings-section" aria-label="یافته‌ها"><div className="section-heading compact"><div><span className="section-number">02 /</span><h2>ردپاهای قابل بررسی</h2><p>هر یافته همراه با شاهد متنی، توضیح و محدودیت تفسیر نمایش داده می‌شود.</p></div><div className="tabs"><button type="button" className={tab === 'all' ? 'active' : ''} onClick={() => this.setState({ tab: 'all' })}>همه یافته‌ها <span>{shortNumber(report.findings.length)}</span></button><button type="button" className={tab === 'notable' ? 'active' : ''} onClick={() => this.setState({ tab: 'notable' })}>مهم‌ترها <span>{shortNumber(report.findings.filter(f => f.severity !== 'low').length)}</span></button></div></div>
             <div className="evidence-layout">
               <div className="findings-list">{findings.length ? findings.map((f, i) => <article className={`finding-card ${activeId === f.id ? 'active' : ''}`} key={f.id}><div className="finding-top"><div className="finding-index">{String(i + 1).padStart(2, '0')}</div><div className="finding-head"><div className="finding-meta"><span>{CATEGORY_LABEL[f.category]}</span><span className="meta-separator"></span><span>{shortNumber(f.hits.length)} نمونه</span></div><h3>{f.title}</h3></div><span className={`severity ${f.severity}`}><span></span>{SEVERITY_LABEL[f.severity]}</span></div><p>{f.description}</p><div className="quote-list">{f.hits.slice(0, 2).map((hit, ix) => <span className="quote-chip" key={ix}>«{hit.text.replace(/\n/g, ' ').slice(0, 75)}{hit.text.length > 75 ? '…' : ''}»</span>)}</div><div className="finding-footer"><span><Icon name="info" size={15}/>{f.caveat}</span><div className="finding-actions"><button type="button" onClick={() => this.setActive(f.id)}>دیدن در متن <Icon name="arrow" size={16}/></button></div></div></article>) : <div className="empty-finding"><div><Icon name="search" size={26}/></div><h3>{tab === 'notable' ? 'یافته برجسته‌ای در این دسته نیست' : 'الگوی تعریف‌شده‌ای پیدا نشد'}</h3><p>این موضوع به معنی انسانی بودن متن نیست. فقط در محدوده قواعد فعلی برنامه نشانه‌ای پیدا نشده است.</p></div>}</div>

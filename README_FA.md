@@ -67,3 +67,6 @@ bash install-update.command
 PYTHONPATH=python .venv/bin/python -m unittest python/test_training_sources.py python/test_corpus_store.py python/test_detection_lab.py python/test_engine_v3.py
 node --test tests/admin-ux.test.mjs
 ```
+
+## بازنویسی فارسی — MVP آزمایشی
+یک فضای مستقل «ویرایش و بازنویسی طبیعی فارسی» در صفحه عمومی وجود دارد. سبک آن «حرفه‌ای و طبیعی»، شدت پیش‌فرض ۴۵٪ و پردازش کاملاً محلی است. نسخه اولیه بدون مدل مولد، بازنویسی‌های محدود، کنترل رسم‌الخط، نمایش تغییرها و ثبت منشأ متن را انجام می‌دهد. تا کاربر تغییرات را مرور و تأیید نکند خروجی در تحلیل جایگزین نمی‌شود. **متن AI صرفاً با ویرایش به متن انسانی تبدیل نمی‌شود.** جزئیات: `training/REWRITE_FA.md`.
