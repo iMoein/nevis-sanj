@@ -9,12 +9,24 @@
 .review-card{border-color:#9cafec;margin-bottom:18px;scroll-margin-top:18px}.example-grid{display:grid;gap:9px;grid-template-columns:repeat(2,minmax(0,1fr));margin:10px 0 15px}.example{border:1px solid #e3e8f3;background:#f8f9fe;border-radius:11px;padding:12px;min-width:0}.example p{font-size:12px;line-height:1.8;max-height:135px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.review-meta{font-size:12px;color:#607391;margin-top:9px}.review-meta .pill{margin-left:6px}.training-hint{font-size:12px;background:#edf4fe;color:#425a87;padding:12px;border-radius:9px}.approve-checks{padding:12px;border:1px solid #e4e9f4;border-radius:10px}.approve-checks label{margin:0 0 6px}.approve-checks label:last-child{margin:0}input[type=search],#source-filter{border:1px solid #d5ddef;border-radius:9px;padding:9px;background:white;color:#35415b;font-size:12px;max-width:250px}.candidate-row{padding:14px 0;border-bottom:1px solid #e9edf5;display:flex;align-items:center;justify-content:space-between;gap:12px}.candidate-row:last-child{border-bottom:0}.candidate-row .details{min-width:0;flex:1}.candidate-row strong{font-size:13px;overflow-wrap:anywhere}.candidate-row .meta{font-size:11px;color:#7e8ba2;overflow-wrap:anywhere}.more{width:100%;margin-top:12px}.review-card details{border:1px solid #e3e9f3;border-radius:10px;padding:11px}.review-card details summary{font-size:12px}.review-card label input{font-size:12px}.source .meta{direction:ltr}@media(max-width:850px){.candidate-row{align-items:flex-start}.example-grid{grid-template-columns:1fr}input[type=search]{max-width:170px}}
 
 .training-hint.warning{background:#fff2df;color:#81561c}
+.training-entry{border:1px solid #e3e9f3;border-radius:12px;padding:16px;background:#fcfdff;min-width:0}
+.training-entry .source-id{direction:ltr;text-align:right;overflow-wrap:anywhere;color:#5a6e8c;font-size:11px}
+.training-entry .purpose{font-size:13px;color:#33435e;margin:8px 0 6px}
+.training-entry .model-list{display:grid;gap:7px;margin-top:8px;max-height:330px;overflow:auto}
+.training-entry .model-line{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #e9edf5;padding:8px 2px;font-size:12px;flex-wrap:wrap}
+.training-entry .model-line code{overflow-wrap:anywhere;white-space:normal}
+.training-entry .metadata{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.training-entry .counts{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px;font-size:12px}
+.training-entry .counts span{border:1px solid #e3e9f3;border-radius:8px;padding:5px 9px}
+#view-training label{font-size:11px}
+#view-training label select,#view-training label input{min-width:150px;max-width:220px;width:100%}
+@media(max-width:650px){#view-training .row.between{align-items:flex-start}}
 </style></head><body>
 <header><div><h1>مرکز مدیریت و آموزش نویس‌سنج</h1><p>کشف منابع، کیفیت داده‌ها، آموزش مستمر و انتشار مدل</p></div><span class="privacy">خصوصی · فقط همین مک</span></header>
 <div class="shell">
 <div class="banner" id="message" role="status">در حال دریافت وضعیت برنامه...</div>
-<nav class="tabs" aria-label="بخش‌های پنل"><button class="tab active" data-tab="overview">نمای کلی</button><button class="tab" data-tab="sources">کشف منابع</button><button class="tab" data-tab="models">مدل‌ها و ارزیابی</button><button class="tab" data-tab="settings">تنظیمات و انتشار</button></nav>
-<section class="section active" id="view-overview"><div class="lead"><div><h2>نمای کلی سیستم</h2><p>بلافاصله ببین آخرین بار چه اتفاقی افتاده و چه کاری باقی مانده.</p></div><button class="btn" id="refresh">به‌روزرسانی وضعیت</button></div><div class="grid three" id="summary"></div><div class="grid" style="margin-top:16px"><div class="card"><h3>جریان داده و آموزش</h3><div id="flow" class="gap"></div></div><div class="card"><h3>اقدامات سریع</h3><div class="gap"><button class="btn primary" id="quick-discover">انتخاب منبع آموزشی</button><button class="btn" id="quick-sync">بررسی داده‌های منابع فعال</button></div><div class="notice">نتیجه پیش‌بینی خود برنامه به داده آموزشی تبدیل نمی‌شود. فقط متن‌های دارای منشأ و برچسب معتبر وارد آموزش می‌شوند.</div></div></div></section>
+<nav class="tabs" aria-label="بخش‌های پنل"><button class="tab active" data-tab="overview">نمای کلی</button><button class="tab" data-tab="sources">کشف منابع</button><button class="tab" data-tab="training">کتابخانه داده‌های آموزش</button><button class="tab" data-tab="models">مدل‌ها و ارزیابی</button><button class="tab" data-tab="lab">Detection Lab V3</button><button class="tab" data-tab="settings">تنظیمات و انتشار</button></nav>
+<section class="section active" id="view-overview"><div class="lead"><div><h2>نمای کلی سیستم</h2><p>بلافاصله ببین آخرین بار چه اتفاقی افتاده و چه کاری باقی مانده.</p></div><button class="btn" id="refresh">به‌روزرسانی وضعیت</button></div><div class="grid three" id="summary"></div><div class="grid" style="margin-top:16px"><div class="card"><h3>جریان داده و آموزش</h3><div id="flow" class="gap"></div></div><div class="card"><h3>اقدامات سریع</h3><div class="gap"><button class="btn primary" id="quick-discover">انتخاب منبع آموزشی</button><button class="btn" id="quick-training">مشاهده داده‌های ChatGPT و Claude</button><button class="btn" id="quick-sync">بررسی داده‌های منابع فعال</button></div><div class="notice">نتیجه پیش‌بینی خود برنامه به داده آموزشی تبدیل نمی‌شود. فقط متن‌های دارای منشأ و برچسب معتبر وارد آموزش می‌شوند.</div></div></div></section>
 <section class="section" id="view-sources">
   <div class="lead"><div><h2>اضافه‌کردن منبع آموزشی</h2><p>فقط منابع مناسب رو مرور کن؛ جزئیات فنی رو نویس‌سنج مدیریت می‌کنه.</p></div>
     <button class="btn" id="discover">جست‌وجوی منابع تازه</button></div>
@@ -70,17 +82,74 @@
     <div id="approved"></div>
     <p class="muted" style="margin-top:12px">اگر منبع فعال است اما هنوز ۰ نمونه به آموزش اضافه شده، ممکن است متن‌ها کوتاه‌تر از حداقل ۳۵ واژه باشند یا در کنترل‌های کیفیت رد شده باشند. وضعیت در همگام‌سازی‌های بعدی دوباره بررسی می‌شود.</p></details>
 </section>
+<section class="section" id="view-training" aria-label="کتابخانه داده‌های آموزشی">
+ <div class="lead"><div><h2>منابع واقعی بانک آموزش</h2><p>برای هر مجموعه ببین چه متنی تولید کرده، کدام مدل سازنده است و در چه مرحله‌ای استفاده می‌شود.</p></div><button class="btn" id="training-refresh">بازخوانی منابع</button></div>
+ <div class="notice">«موجود در بانک آموزش» به معنی استفاده قطعی تک‌تک نمونه‌ها در وزن‌های مدل یا انتشار آن روی سایت نیست. نمونه‌های آزمون مستقل وارد بانک آموزش نمی‌شوند.</div>
+ <div id="training-summary" class="grid three" aria-live="polite"><div class="card">در حال خواندن نمونه‌های ثبت‌شده...</div></div>
+ <div class="card" style="margin-top:16px">
+  <div class="row between" style="margin-bottom:12px"><h3>فهرست برچسب‌خورده منابع</h3><div class="row">
+   <label for="training-language">زبان<select id="training-language"><option value="all">همه</option><option value="fa">فارسی</option><option value="en">انگلیسی</option></select></label>
+   <label for="training-family">خانواده مدل<select id="training-family"><option value="all">همه</option><option value="ChatGPT / OpenAI">ChatGPT / OpenAI</option><option value="Claude / Anthropic">Claude / Anthropic</option><option value="Gemini / Google">Gemini / Google</option><option value="human">انسانی</option></select></label>
+   <label for="training-search">نام یا کاربرد<input id="training-search" type="search" placeholder="نام منبع، مدل، هدف..." aria-label="جست‌وجوی منبع آموزشی"/></label>
+  </div></div><p class="muted" id="training-count"></p><div id="training-catalog" class="gap" style="margin-top:13px"></div></div>
+</section>
 <section class="section" id="view-models"><div class="lead"><div><h2>مدل‌ها و کیفیت تشخیص</h2><p>دو زبان مستقل، مشخصات آزمون، مدل آزمایشی و نسخه منتشرشده</p></div><button class="btn" id="train-now">بازآموزی در صورت تغییر داده</button></div><div class="grid" id="model-cards"></div><div class="notice">حتی اگر صحت آزمون داخلی ۱۰۰٪ باشد، لزوماً به معنی دقت واقعی نیست؛ به‌خصوص با تعداد کم نمونه‌های آزمون. مدل جدید فقط پس از تأیید دستی روی سایت منتشر می‌شود.</div></section>
+<section class="section" id="view-lab" aria-label="آزمایشگاه تشخیص">
+ <div class="lead"><div><h2>آزمایشگاه تشخیص V3</h2><p>آزمون‌های مستقل، بررسی خطاها و وضعیت آماده‌بودن مدل برای انتشار</p></div><div class="row"><label for="lab-language">زبان</label><select id="lab-language"><option value="fa">فارسی</option><option value="en">English</option></select><button class="btn" id="lab-refresh">بازخوانی</button></div></div>
+ <div class="notice">فقط پنل محلی. نمونه‌های آزمون ثابت وارد آموزش نمی‌شوند و پاسخ مدل هیچ‌وقت به‌تنهایی برچسب صحیح محسوب نمی‌شود.</div>
+ <div id="lab-overview" class="gap" aria-live="polite">در حال دریافت وضعیت آزمایشگاه...</div>
+ <div class="card" style="margin-top:16px"><div class="row between"><div><h3>آزمون‌های تخصصی</h3><p class="muted">هر آزمون فقط در صورت وجود داده معتبر اجرا می‌شود.</p></div><button class="btn primary" id="lab-suite">اجرای آزمون</button></div><div id="lab-suites" class="gap" style="margin-top:12px"></div></div>
+ <div class="card" style="margin-top:16px"><div class="row between"><div><h3>بازبینی خطاها (Active Learning)</h3><p class="muted">انتخاب نمونه‌های دشوار و ثبت نتیجه بازبینی مستند؛ بدون تغییر خودکار مدل</p></div><button class="btn" id="lab-scan">انتخاب نمونه‌های دشوار</button></div><div id="lab-queue" class="gap" style="margin-top:14px"></div></div>
+</section>
 <section class="section" id="view-settings"><div class="lead"><div><h2>تنظیمات مدیریت</h2><p>کنترل بازآموزی خودکار و انتشار امن مدل‌های تأییدشده</p></div></div><div class="grid"><div class="card gap"><h3>زمان‌بندی آموزش و کشف داده</h3><p id="scheduler-info" class="muted">در حال بررسی...</p><button class="btn primary" id="toggle-schedule">فعال‌سازی زمان‌بندی ساعتی</button><p class="muted">این زمان‌بندی روی macOS اجرا می‌شود. وقتی مک خاموش باشد اجرا نمی‌شود. همچنین منبع تازه کشف‌شده بدون بررسی منشأ و مجوز خودکار تأیید نمی‌شود.</p></div><div class="card gap"><h3>ورود داده شخصی یا سازمانی</h3><p class="muted">مجموعه‌های JSONL، CSV یا JSON با ستون‌های text، label و group را می‌توانی وارد کنی. این کار برای استفاده روزانه اجباری نیست.</p><div class="row"><select id="upload-language"><option value="fa">فارسی</option><option value="en">انگلیسی</option></select><button class="btn" id="upload-trigger">انتخاب فایل آموزشی</button><input type="file" id="fileInput" accept=".csv,.json,.jsonl"/></div></div></div><div class="card" style="margin-top:16px"><h3>انتشار سایت عمومی</h3><p class="muted">پس از تأیید مدل در بخش «مدل‌ها»، برای ارسال به GitHub از فایل <code>publish.command</code> در پوشه برنامه استفاده کن. این پنل روی سایت عمومی نصب نمی‌شود و داده‌های آموزشی در مخزن منتشر نمی‌شوند.</p></div></section>
 <footer>نویس‌سنج ۲.۵.۶ · مرکز آموزش محلی و خصوصی</footer></div>
 <script nonce="nevislocal">
-'use strict';const TOKEN='%%TOKEN%%';const $=x=>document.getElementById(x);let state=null,active='overview',busy=false,reviewId=null,reviewPreview=null;
+'use strict';const TOKEN='%%TOKEN%%';const $=x=>document.getElementById(x);let state=null,active='overview',busy=false,reviewId=null,reviewPreview=null,trainingData=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date=s=>{if(!s)return 'ثبت نشده';try{return new Date(s).toLocaleString('fa-IR')}catch{return 'ثبت نشده'}};
 const pct=v=>v==null?'—':(v*100).toLocaleString('fa-IR',{maximumFractionDigits:1})+'٪';
 const info=(msg,isError=false)=>{const x=$('message');x.textContent=msg;x.classList.toggle('error',isError)};
-function tab(id){active=id;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id==='view-'+id));}
+function tab(id){active=id;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id==='view-'+id));if(id==='lab')loadLab().catch(e=>info(e.message,true));if(id==='training')loadTrainingSources().catch(e=>info(e.message,true));}
 document.querySelectorAll('.tab').forEach(x=>x.onclick=()=>tab(x.dataset.tab));
+
+async function loadTrainingSources(){
+ const r=await fetch('/api/training-sources',{cache:'no-store'});
+ if(!r.ok)throw Error('دریافت کتابخانه منابع آموزشی ناموفق بود.');
+ trainingData=await r.json();renderTrainingSources();
+}
+const trainingNum=n=>Number(n||0).toLocaleString('fa-IR');
+function renderTrainingSources(){
+ if(!trainingData)return;
+ const all=trainingData.sources||[],tot=trainingData.summary||{};
+ const lang=$('training-language').value,family=$('training-family').value,term=$('training-search').value.toLowerCase().trim();
+ const items=all.filter(s=>(lang==='all'||s.language===lang) &&
+     (family==='all'||s.models.some(m=>m.family===family)) &&
+     (!term||[s.title,s.id,s.purpose,...s.models.map(m=>m.name)].join(' ').toLowerCase().includes(term)));
+ $('training-summary').innerHTML=[
+  ['نمونه‌های موجود در بانک آموزش',tot.total,'تعداد نمونه ثبت‌شده؛ نه تعداد نمونه قطعاً استفاده‌شده در وزن‌ها'],
+  ['برچسب‌ها',tot.ai,'متن ماشینی · '+trainingNum(tot.human)+' متن انسانی'],
+  ['داده‌های کنارگذاشته‌شده برای آزمون',tot.holdout,'مستقل از SQLite و خارج از فرآیند آموزش']
+ ].map(v=>'<div class="card"><h3>'+esc(v[0])+'</h3><div class="big">'+trainingNum(v[1])+'</div><p class="muted">'+esc(v[2])+'</p></div>').join('');
+ $('training-count').textContent=trainingNum(items.length)+' منبع/زبان از '+trainingNum(all.length)+' مجموعه موجود در بانک نمایش داده می‌شود.';
+ $('training-catalog').innerHTML=items.map(s=>{
+  const c=s.counts||{},roles=c.ai&&c.human?'انسانی + ماشینی':c.ai?'ماشینی (AI)':'انسانی';
+  const models=s.models||[];
+  const modelRows=models.map(m=>'<div class="model-line"><div><code>'+esc(m.name)+'</code><div class="muted">'+esc(m.family)+' · '+(m.label==='human'?'برچسب: انسان':'برچسب: AI')+'</div></div><div>'+trainingNum(m.train_count)+' آموزش'+(m.holdout_count?' · '+trainingNum(m.holdout_count)+' آزمون':'')+'</div></div>').join('');
+  return '<article class="training-entry"><div class="row between"><div><h3>'+esc(s.title)+'</h3><div class="source-id">'+esc(s.id)+'</div></div><div class="row"><span class="pill">'+(s.language==='fa'?'فارسی':'انگلیسی')+'</span><span class="pill">'+roles+'</span><span class="pill good">وارد بانک آموزش شده</span></div></div>'+
+   '<p class="purpose"><b>کاربرد آموزشی:</b> '+esc(s.purpose)+'</p>'+
+   '<p class="muted">مجوز و اعتبار: '+esc(s.license)+'</p>'+
+   '<p class="muted" style="margin-top:5px">برچسب سازنده از اطلاعات منبع گرفته شده؛ اثبات قطعی نویسندگی نیست.</p>'+
+   '<div class="counts"><span>AI: <b>'+trainingNum(c.ai)+'</b></span><span>انسانی: <b>'+trainingNum(c.human)+'</b></span><span>آزمون مستقل: <b>'+trainingNum(c.holdout)+'</b></span><span>مدل/برچسب: <b>'+trainingNum(models.length)+'</b></span></div>'+
+   (s.url?'<p style="margin-top:8px;font-size:12px"><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">سند اصلی منبع</a></p>':'')+
+   '<details><summary>نمایش ریز برچسب‌ها، مدل‌ها و تعداد نمونه‌ها</summary><div class="model-list">'+modelRows+'</div></details>'+
+   '<p class="muted" style="margin-top:11px">وضعیت: این داده در بانک SQLite هست؛ انتشار مدل آزمایشی و مدل سایت به ارزیابی جداگانه نیاز داره.</p></article>';
+ }).join('')||'<p class="muted" style="padding:20px 0">برای این فیلتر منبعی پیدا نشد.</p>';
+}
+$('training-refresh').onclick=()=>loadTrainingSources().catch(e=>info(e.message,true));
+for(const id of ['training-language','training-family','training-search']){
+ $(id).addEventListener(id==='training-search'?'input':'change',renderTrainingSources);
+}
+
 async function status(){const r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error('ارتباط با پنل قطع شده');state=await r.json();render();}
 async function action(route,payload={}){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);info('در حال انجام عملیات، وضعیت پس از پایان ثبت می‌شود...');try{const r=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json','X-Nevis-Token':TOKEN},body:JSON.stringify(payload)});const x=await r.json();if(!r.ok)throw Error(x.error||'عملیات انجام نشد');state=x.status;render();info('عملیات انجام شد. '+(route==='/api/discover'?`${x.result.added} منبع تازه شناسایی شد. ${(x.result.errors||[]).length?'بعضی درخواست‌ها ناموفق بودند؛ جزئیات در وضعیت منابع نمایش داده می‌شود.':''}`:route==='/api/sync-sources'?`${x.result.added.fa} فارسی و ${x.result.added.en} انگلیسی اضافه شد.`:''));return x.result;}catch(e){info(e.message,true)}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);render()}}
 let visibleSources=7;
@@ -241,12 +310,84 @@ $('cancel-review').onclick=()=>{$('source-review').classList.add('hidden');revie
 $('source-search').oninput=()=>{visibleSources=7;renderSourceList();};$('source-filter').onchange=()=>{visibleSources=7;renderSourceList();};
 $('language-filter').onchange=()=>{visibleSources=7;renderSourceList();};$('more-sources').onclick=()=>{visibleSources+=7;renderSourceList();};
 $('refresh').onclick=()=>status().then(()=>info('وضعیت به‌روزرسانی شد.')).catch(e=>info(e.message,true));
-$('discover').onclick=()=>action('/api/discover');$('quick-discover').onclick=()=>tab('sources');
+$('discover').onclick=()=>action('/api/discover');$('quick-discover').onclick=()=>tab('sources');$('quick-training').onclick=()=>tab('training');
 $('sync').onclick=$('quick-sync').onclick=()=>action('/api/sync-sources');
 $('train-now').onclick=()=>action('/api/sync',{language:'fa'});
 $('toggle-schedule').onclick=()=>action(state.scheduler_enabled?'/api/schedule-disable':'/api/schedule-enable',{language:'fa'});
 $('upload-trigger').onclick=()=>$('fileInput').click();
 $('fileInput').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>20000000)return info('حجم فایل بیشتر از حد مجاز است.',true);await action('/api/upload',{language:$('upload-language').value,filename:file.name,content:await file.text()});e.target.value='';};
+let labState=null,labLatest=null,labQueue=[];
+const labNum=n=>Number(n||0).toLocaleString('fa-IR');
+function labMetrics(m){
+ if(!m)return '<p class="muted">معیار قابل مقایسه موجود نیست.</p>';
+ return `<div class="row"><span class="pill">نمونه: ${labNum(m.n)}</span><span class="pill">Recall AI: ${m.ai_recall==null?'ناموجود':pct(m.ai_recall)}</span><span class="pill">خطای مثبت انسانی: ${m.human_false_positive_rate==null?'ناموجود':pct(m.human_false_positive_rate)}</span></div>`;
+}
+async function readLabJSON(path){
+  let last=null;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const response=await fetch(path,{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status+' — '+path);
+      return await response.json();
+    }catch(err){last=err;if(attempt===0&&/HTTP 4[0-9]{2}/.test(String(err)))break;}
+  }
+  throw new Error('ارتباط با سرویس آزمایشگاه برقرار نشد ('+String(last?.message||'خطای شبکه')+'). از دکمه بازخوانی استفاده کن.');
+}
+async function loadLab(){
+  const lang=$('lab-language').value;
+  $('lab-overview').innerHTML='<div class="card"><p class="muted">در حال دریافت داده‌های آزمایشگاه...</p></div>';
+  try{
+    const [summary,queue,latest]=await Promise.all([
+      readLabJSON('/api/lab/status'),
+      readLabJSON('/api/lab/queue?language='+lang),
+      readLabJSON('/api/lab/latest?language='+lang)
+    ]);
+    if(!summary.languages?.[lang])throw new Error('پاسخ آزمایشگاه ناقص است.');
+    labState=summary;labQueue=queue.items||[];labLatest=latest.result;renderLab();
+    info('آزمایشگاه آماده است.');
+  }catch(err){
+    $('lab-overview').innerHTML='<div class="card"><h3>بارگذاری آزمایشگاه ناموفق بود</h3><p class="muted" id="lab-error-message"></p><button class="btn" id="lab-retry">تلاش دوباره</button></div>';
+    $('lab-error-message').textContent=String(err.message||err);
+    $('lab-retry').onclick=()=>loadLab();
+    info(String(err.message||err),true);
+  }
+}
+
+function renderLab(){
+ if(!labState)return;
+ const lang=$('lab-language').value,x=labState.languages[lang],g=x.gate;
+ $('lab-overview').innerHTML=`<div class="grid">
+   <article class="card"><h3>دروازه انتشار</h3><div class="row"><span class="pill ${g.eligible?'good':'bad'}">${g.eligible?'واجد شرایط بررسی انتشار':'انتشار مسدود'}</span><span class="pill">مدل: ${esc(g.model||'نامشخص')}</span></div>
+   <p class="muted" style="margin:11px 0">${g.blockers.map(v=>'• '+esc(v)).join('<br>')}</p></article>
+   <article class="card"><h3>منشأ داده‌ها</h3><div class="big">${labNum(x.provenance.total)}</div><p class="muted">${labNum(x.provenance.missing_or_inferred_source)} رکورد با منشأ نامشخص یا استنباطی</p>
+   <div class="gap" style="margin-top:12px">${x.provenance.sources.slice(0,4).map(a=>`<div class="stat"><strong style="font-size:12px">${esc(a.name)}</strong><span>انسانی: ${labNum(a.human)} · ماشینی: ${labNum(a.ai)}</span></div>`).join('')}</div></article></div>
+   <div class="card"><h3>مقایسه الگوریتم‌ها — اعتبارسنجی داخلی</h3><div class="grid">${x.comparison.map(a=>`<div class="stat"><strong style="font-size:14px">${esc(a.algorithm)}</strong>${labMetrics(a.validation)}</div>`).join('')||'<p class="muted">هنوز اجرا نشده.</p>'}</div><p class="muted" style="margin-top:12px">نتایج داخلی جای آزمون با منابع جدید و مدل‌های دیده‌نشده را نمی‌گیرند.</p></div>
+   <div class="card"><h3>Cross-source benchmark</h3>${x.cross_source?`<p class="muted">Training: ${esc(x.cross_source.trained_source)} | New test: ${esc(x.cross_source.unseen_test_source)}</p>${labMetrics(x.cross_source.unseen_test)}<p class="muted">Separate-source proxy only; upstream overlap still needs auditing.</p>`:'<p class="muted">No source-disjoint experiment available for this language.</p>'}</div><div class="card"><h3>Transformer</h3><p class="muted">${labState.transformer_available?'کتابخانه‌ها نصب‌اند؛ آزمایش وزن‌های معتبر و مجاز لازم است.':'کتابخانه‌های لازم نصب نیستند.'} دانلود و آموزش خودکار انجام نمی‌شود.</p></div>`;
+ const display={all:'کل نمونه‌ها',short:'متن کوتاه (زیر ۱۵۰ واژه)',medium:'متن متوسط (۱۵۰ تا ۳۹۹ واژه)',long:'متن بلند (۴۰۰ واژه و بیشتر)'};
+ $('lab-suites').innerHTML=labLatest?`<p class="muted">آخرین اجرا: ${date(labLatest.created_at)} · تکرار دقیق در بانک: ${labNum(labLatest.exact_training_overlap_count)}</p>
+   ${Object.entries(labLatest.length_slices||{}).map(([k,v])=>`<div class="stat"><strong style="font-size:12px">${esc(display[k]||k)}</strong>${labMetrics(v)}</div>`).join('')}
+   ${Object.entries(labLatest.suites||{}).filter(([k])=>k!=='length').map(([k,v])=>`<p class="muted"><span class="pill warn">نیازمند داده</span> ${esc(k)}: ${esc(v.reason||'')}</p>`).join('')}`:'<p class="muted">آزمون مستقلی هنوز اجرا نشده است.</p>';
+ $('lab-queue').innerHTML=labQueue.length?labQueue.map(r=>`<div class="example">
+   <div class="row between"><strong>${esc(r.expected==='ai'?'برچسب موجود: ماشینی':'برچسب موجود: انسانی')}</strong><span class="pill ${r.state==='pending'?'warn':'good'}">${esc(r.state)}</span></div>
+   <p class="muted">پیش‌بینی V3: ${esc(r.predicted)} · امتیاز: ${Number(r.score).toFixed(3)} · منبع: ${esc(r.source||'نامعلوم')}</p>
+   <p style="direction:auto;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0">${esc(r.snippet)}</p>
+   ${r.state!=='verified'&&r.state!=='rejected'?`<button class="btn" data-lab-review="${esc(r.digest)}">ثبت بازبینی مستند</button>`:''}</div>`).join(''):'<p class="muted">نمونه‌ای در صف ثبت نشده است.</p>';
+ $('lab-queue').querySelectorAll('[data-lab-review]').forEach(b=>b.onclick=async()=>{
+  const note=prompt('مدرک یا دلیل بازبینی را بنویس؛ حداقل ۱۲ نویسه.');if(note===null)return;
+  const label=prompt('برچسب تأییدشده با مدرک: human یا ai؛ در صورت تردید خالی بگذار.','');if(label===null)return;
+  const confirmed_label=label.trim()||null;
+  if(confirmed_label&&!['human','ai'].includes(confirmed_label))return info('برچسب فقط human یا ai است.',true);
+  const result=await action('/api/lab/review',{language:lang,digest:b.dataset.labReview,decision:confirmed_label?'verified':'needs_review',confirmed_label,note});
+  if(result)await loadLab();
+ });
+}
+$('lab-language').onchange=()=>loadLab().catch(e=>info(e.message,true));
+$('lab-refresh').onclick=()=>loadLab().catch(e=>info(e.message,true));
+$('lab-suite').onclick=async()=>{const lang=$('lab-language').value;const r=await action('/api/lab/suite',{language:lang});if(r){await loadLab();info('آزمون اجرا شد؛ محدودیت‌ها هم ثبت شدند.')}};
+$('lab-scan').onclick=async()=>{const lang=$('lab-language').value;const r=await action('/api/lab/scan',{language:lang,max_items:30});if(r){await loadLab();info(labNum(r.queued)+' نمونه برای بازبینی انتخاب شد.')}};
+
+
+if(location.hash==='#lab')tab('lab');if(location.hash==='#training')tab('training');
 status().then(()=>info('پنل آماده است. کشف منابع جدید و آموزش به‌صورت جداگانه مدیریت می‌شوند.')).catch(e=>info(e.message,true));
 setInterval(()=>{if(!busy)status().catch(()=>{})},20000);
 </script></body></html>

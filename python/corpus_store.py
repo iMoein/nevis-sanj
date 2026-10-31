@@ -12,11 +12,35 @@ def connect():
 def digest(text):
  from ml import normalized
  return hashlib.sha256(normalized(text).encode('utf-8')).hexdigest()
+def holdout_digests(lang):
+ """Exact normalized hashes reserved permanently for final independent evaluation."""
+ from functools import lru_cache
+ return _holdout_digests(lang)
+
+from functools import lru_cache
+@lru_cache(maxsize=2)
+def _holdout_digests(lang):
+ if lang not in ('fa','en'):raise ValueError('Invalid language')
+ root=ROOT/'admin_data'
+ paths=([root/'benchmark-en/heldout-test-en.jsonl'] if lang=='en' else [root/'benchmark-fa/human-test.jsonl',root/'benchmark-fa/human-val.jsonl'])
+ paths.append(root/'benchmark-chatgpt-claude'/(lang+'-external-heldout.jsonl'))
+ excluded=set()
+ for path in paths:
+  if not path.exists():continue
+  with path.open(encoding='utf-8') as f:
+   for line in f:
+    if not line.strip():continue
+    item=json.loads(line)
+    if isinstance(item.get('text'),str):excluded.add(digest(item['text']))
+ return excluded
+
 def insert_rows(c,lang,rows):
- batch=[];added=0
+ batch=[];added=0;reserved=holdout_digests(lang)
  for r in rows:
   if r.get('label') not in ('human','ai') or not isinstance(r.get('text'),str):continue
-  h=digest(r['text']);meta={k:v for k,v in r.items() if k not in ('text','label','group','language')}
+  h=digest(r['text'])
+  if h in reserved:continue
+  meta={k:v for k,v in r.items() if k not in ('text','label','group','language')}
   batch.append((h,lang,r['label'],str(r.get('group') or h),r['text'],json.dumps(meta,ensure_ascii=False)))
   if len(batch)==250:
    before=c.total_changes;c.executemany('INSERT OR IGNORE INTO examples VALUES (?,?,?,?,?,?)',batch);added+=c.total_changes-before;batch=[]

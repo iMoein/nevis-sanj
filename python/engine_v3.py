@@ -18,9 +18,11 @@ def digest(t):return hashlib.sha256(normal(t).encode()).hexdigest()
 def read_corpus(lang,limit):
     con=sqlite3.connect(str(ROOT/'admin_data'/'corpus.sqlite3'))
     rows=con.execute('SELECT text,label,group_id FROM examples WHERE language=?',(lang,)).fetchall();con.close()
+    from corpus_store import holdout_digests, digest as corpus_digest
+    reserved=holdout_digests(lang)
     by_label={'human':[],'ai':[]}
     for text,label,group in rows:
-        if label not in by_label or len(text)<180:continue
+        if label not in by_label or len(text)<180 or corpus_digest(text) in reserved:continue
         by_label[label].append((text,label,group))
     selected=[]
     for label,items in by_label.items():
@@ -58,7 +60,7 @@ def cutoff(y,s,target_fpr=0.05):
     humans=np.sort(np.asarray(s)[np.asarray(y)==0]);allowed=math.floor(len(humans)*target_fpr)
     if len(humans)<20:raise ValueError('At least 20 human validation examples required')
     idx=max(0,len(humans)-allowed-1)
-    return min(0.9999,max(.50001,float(np.nextafter(humans[idx],1.))))
+    return min(1.0,max(0.0,float(np.nextafter(humans[idx],1.0))))
 def vectors_to_json(word,char,coef):
     result=[];base=0
     for kind,v in [('word',word),('char',char)]:
@@ -91,22 +93,35 @@ def run(lang,limit):
     print(lang,'selected',len(rows),'source',available,'splits',{x:len(v) for x,v in parts.items()},flush=True)
     (word,char),(X,Y,Z)=make_features(parts['train'],parts['validation'],parts['test'])
     train=np.array([int(r[1]=='ai') for r in parts['train']]);dev=np.array([int(r[1]=='ai') for r in parts['validation']]);test=np.array([int(r[1]=='ai') for r in parts['test']])
+    # Keep model calibration and threshold selection on different grouped subsets.
+    cal_idx=[];select_idx=[]
+    for i,row in enumerate(parts['validation']):
+        h=int.from_bytes(hashlib.sha256(('calibration|'+row[2]).encode()).digest()[:8],'big')%100
+        (cal_idx if h<50 else select_idx).append(i)
+    cal_y=dev[cal_idx];select_y=dev[select_idx]
+    if min(Counter(cal_y).values())<20 or min(Counter(select_y).values())<20:
+        raise ValueError('Insufficient grouped calibration or threshold examples')
     models=[('logistic',LogisticRegression(C=1.0,max_iter=150,solver='liblinear',class_weight='balanced',random_state=42)),
             ('linear_svm',LinearSVC(C=.5,class_weight='balanced',random_state=42,max_iter=2000))]
     comparisons=[];choices=[]
     for name,clf in models:
         clf.fit(X,train)
-        validation_scores=clf.predict_proba(Y)[:,1] if name=='logistic' else expit(clf.decision_function(Y))
-        gate=cutoff(dev,validation_scores)
-        m=measurements(dev,validation_scores,gate);m['threshold_ai']=round(float(gate),6)
-        comparisons.append({'algorithm':name,'validation':m})
-        choices.append((m['ai_recall'],m['balanced_accuracy'],name,clf,gate))
-        print(lang,name,'validation',m,flush=True)
-    _,_,name,winner,threshold=max(choices,key=lambda z:(z[0],z[1],z[2]))
-    test_scores=winner.predict_proba(Z)[:,1] if name=='logistic' else expit(winner.decision_function(Z))
+        raw_cal=np.asarray(clf.decision_function(Y[cal_idx])).reshape(-1,1)
+        calibrator=LogisticRegression(solver='lbfgs',max_iter=400,random_state=42).fit(raw_cal,cal_y)
+        alpha=float(calibrator.coef_[0,0]);beta=float(calibrator.intercept_[0])
+        raw_select=np.asarray(clf.decision_function(Y[select_idx]))
+        validation_scores=expit(alpha*raw_select+beta)
+        gate=cutoff(select_y,validation_scores)
+        m=measurements(select_y,validation_scores,gate);m['threshold_ai']=round(float(gate),6)
+        comparisons.append({'algorithm':name,'validation':m,'calibration_count':len(cal_idx),'threshold_count':len(select_idx)})
+        choices.append((m['ai_recall'],m['balanced_accuracy'],name,clf,gate,alpha,beta))
+        print(lang,name,'validation',m,'calibration_n',len(cal_idx),flush=True)
+    _,_,name,winner,threshold,alpha,beta=max(choices,key=lambda z:(z[0],z[1],z[2]))
+    test_scores=expit(alpha*np.asarray(winner.decision_function(Z))+beta)
     evaluated=measurements(test,test_scores,threshold)
     print(lang,'winner',name,'untouched test',evaluated,flush=True)
-    weights=winner.coef_[0];bias=float(winner.intercept_[0])
+    # Fold Platt calibration coefficients into the portable linear+sigmoid artifact.
+    weights=winner.coef_[0]*alpha;bias=float(winner.intercept_[0])*alpha+beta
     safe_digest={digest(r[0]) for group in parts.values() for r in group}
     external,provenance=external_rows(lang,safe_digest)
     def score_texts(texts):
@@ -123,11 +138,11 @@ def run(lang,limit):
     artifact={'schema':3,'language':lang,'algorithm':name,'version':'v3.0-experimental','dimensions':int(X.shape[1]),
               'features':vectors_to_json(word,char,weights),'top_weighted_features':features_ranked,'bias':round(bias,8),
               'thresholds':{'ai':round(float(threshold),6),'human':0.35},
-              'metrics':evaluated,'created_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
-              'notice':'Uncalibrated classifier score, not proof of authorship. Unpublished experiment.'}
+              'metrics':evaluated,'calibration':{'method':'platt_sigmoid','calibration_examples':len(cal_idx),'threshold_examples':len(select_idx)},'created_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
+              'notice':'Group-held-out sigmoid calibration; still not a validated probability of authorship on unseen sources. Unpublished.'}
     report={'status':'experimental_not_published','language':lang,'sample_count':len(rows),'available_counts':available,
             'splits':{k:dict(Counter(r[1] for r in v)) for k,v in parts.items()},
-            'validation_comparison':comparisons,'selection_based_on':'validation recall at <=5% human FPR',
+            'validation_comparison':comparisons,'selection_based_on':'separate grouped threshold subset, recall at <=5% human FPR','calibration_method':'Platt sigmoid on disjoint group subset',
             'winner':name,'test_frozen':evaluated,'heldout_external':external_metrics,'heldout_provenance':provenance,
             'runtime_seconds':round(time.monotonic()-started,1),
             'limitations':['No definitive human-vs-AI authorship identification','Same-source learning and group leakage beyond exact duplicates still possible',

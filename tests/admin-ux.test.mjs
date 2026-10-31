@@ -41,3 +41,16 @@ test('documented Persian AI-only corpus maps itself without user guessing',()=>{
  assert.match(html,/منبع فقط متن ماشینی/);
  assert.match(html,/منشأ مستند: متن AI/);
 });
+
+test('training catalog distinguishes GPT, Claude, language, source and holdout data',()=>{
+ assert.match(html,/data-tab="training"/);
+ assert.match(html,/id="training-summary"/);
+ assert.match(html,/id="training-family"/);
+ assert.match(html,/id="training-language"/);
+ assert.match(html,/id="training-search"/);
+ assert.match(html,/fetch\('\/api\/training-sources'/);
+ assert.match(html,/کاربرد آموزشی:/);
+ assert.match(html,/آزمون مستقل:/);
+ assert.match(html,/وارد بانک آموزش شده/);
+ assert.match(html,/به معنی استفاده قطعی تک‌تک نمونه‌ها در وزن‌های مدل/);
+});

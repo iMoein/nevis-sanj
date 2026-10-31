@@ -13,6 +13,8 @@ from ml import load_dataset, train, export_onnx
 from auto_training import guarded_pass, read_status, merge_rows, write_jsonl_atomic
 import source_discovery as discovery
 import corpus_store as store
+import training_sources
+import detection_lab as lab
 from install_scheduler import PLIST, install as enable_scheduler, uninstall as disable_scheduler
 PRIVATE=ROOT/'admin_data'
 CANDIDATES=PRIVATE/'candidates'
@@ -134,7 +136,13 @@ def publish(lang,confirm):
 
 class Handler(BaseHTTPRequestHandler):
     server_version='NevisLocal/2.5.0'
-    def log_message(self,format,*args):print('[admin]',format%args)
+    def log_message(self,format,*args):
+        # Request handling must not depend on a terminal/stdout pipe staying open.
+        try:
+            with (PRIVATE/'panel.log').open('a',encoding='utf-8') as log:
+                log.write(f'[{datetime.now(timezone.utc).isoformat()}] [admin] {format%args}\n')
+        except (OSError, ValueError):
+            pass
     def _reply(self,status,obj):
         out=json.dumps(obj,ensure_ascii=False).encode('utf-8')
         self.send_response(status);self.send_header('Content-Type','application/json; charset=utf-8');self.send_header('Content-Length',str(len(out)))
@@ -161,6 +169,16 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Cache-Control','public, max-age=31536000, immutable')
             self.send_header('X-Content-Type-Options','nosniff')
             self.end_headers();self.wfile.write(content)
+        elif urlparse(self.path).path=='/api/training-sources':self._reply(200,training_sources.catalog())
+        elif urlparse(self.path).path=='/api/lab/status':self._reply(200,lab.overview())
+        elif urlparse(self.path).path=='/api/lab/queue':
+            lang=__import__('urllib.parse',fromlist=['parse_qs']).parse_qs(urlparse(self.path).query).get('language',['fa'])[0]
+            self._reply(200,{'items':lab.queue(lang)})
+        elif urlparse(self.path).path=='/api/lab/latest':
+            lang=__import__('urllib.parse',fromlist=['parse_qs']).parse_qs(urlparse(self.path).query).get('language',['fa'])[0]
+            if lang not in ('fa','en'):self._reply(400,{'error':'زبان نامعتبر'});return
+            p=PRIVATE/'detection-lab'/(lang+'-suite.json')
+            self._reply(200,{'result':json.loads(p.read_text()) if p.exists() else None})
         elif urlparse(self.path).path=='/api/status':self._reply(200,status())
         else:self._reply(404,{'error':'پیدا نشد'})
     def do_POST(self):
@@ -174,7 +192,11 @@ class Handler(BaseHTTPRequestHandler):
             if route not in ('/api/discover','/api/preview-source','/api/approve-source','/api/disable-source','/api/reject-source','/api/sync-sources') and lang not in ('fa','en'):raise ValueError('زبان نامعتبر')
             if not LOCK.acquire(blocking=False):self._reply(409,{'error':'عملیات دیگری در حال اجراست.'});return
             try:
-                if route=='/api/discover':result=discovery.discover()
+                if route=='/api/lab/suite':result=lab.suite(lang)
+                elif route=='/api/lab/scan':result=lab.enqueue(lang,args.get('max_items',30))
+                elif route=='/api/lab/review':
+                    result=lab.review(lang,args.get('digest',''),args.get('decision',''),args.get('confirmed_label'),args.get('note',''))
+                elif route=='/api/discover':result=discovery.discover()
                 elif route=='/api/preview-source':result=discovery.preview(args.get('identifier',''))
                 elif route=='/api/approve-source':
                     allowed={'identifier','config','split','text_field','label_field','ai_value','human_value','confirmed_license','confirmed_provenance'}
@@ -214,7 +236,8 @@ def main():
     threading.Thread(target=auto_loop, name='nevis-auto-training', daemon=True).start()
     httpd=ThreadingHTTPServer(('127.0.0.1',PORT),Handler)
     print(f'\nپنل خصوصی نویس‌سنج: http://127.0.0.1:{PORT}\nبرای توقف Ctrl+C را فشار دهید.\n')
-    threading.Timer(.8,lambda:webbrowser.open(f'http://127.0.0.1:{PORT}')).start()
+    if os.environ.get('NEVIS_NO_BROWSER') != '1':
+        threading.Timer(.8,lambda:webbrowser.open(f'http://127.0.0.1:{PORT}')).start()
     try:httpd.serve_forever()
     except KeyboardInterrupt:pass
     finally:httpd.server_close()

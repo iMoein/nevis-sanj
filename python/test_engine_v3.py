@@ -13,5 +13,11 @@ class EngineV3Tests(unittest.TestCase):
   partitions=split(rows,'en')
   ids=[{r[2] for r in v} for v in partitions.values()]
   self.assertFalse(ids[0]&ids[1]);self.assertFalse(ids[0]&ids[2]);self.assertFalse(ids[1]&ids[2])
+ def test_threshold_can_fall_below_half_when_safe(self):
+  y=np.array([0]*100+[1]*100)
+  scores=np.array([.04+i*.002 for i in range(100)]+[.28+i*.002 for i in range(100)])
+  threshold=cutoff(y,scores,.05)
+  self.assertLess(threshold,.5)
+  self.assertLessEqual(measurements(y,scores,threshold)['human_false_positive_rate'],.05)
  def test_unicode_normalization(self):self.assertEqual(normal('  يك  TEST   '),'یک test')
 if __name__=='__main__':unittest.main()

@@ -14,3 +14,11 @@ training/approved/*.csv
 training/approved/*.json
 
 *.parquet
+
+# Research corpora, frozen benchmarks, local backups, and all training text
+training/research/**/*.jsonl
+training/approved/
+.review-backup/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
